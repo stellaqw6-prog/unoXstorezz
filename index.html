@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+   <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
@@ -321,6 +321,22 @@
         .my-sub-empty i { font-size: 30px; margin-bottom: 8px; color: var(--gold); opacity: 0.3; }
         .my-sub-info-text { margin-top: 8px; padding: 6px; background: rgba(255,255,255,0.02); border-radius: 6px; font-size: 7px; color: #999; text-align: center; border: 1px dashed var(--glass-border); }
         .my-sub-info-text i { color: var(--gold); margin-right: 4px; }
+
+        /* ===== BENEFIT STYLES ===== */
+        .benefit-list { display: flex; flex-direction: column; gap: 5px; margin: 10px 0 12px; }
+        .benefit-item { display: flex; align-items: center; gap: 7px; font-size: 10px; color: #ccc; }
+        .benefit-item i { width: 16px; text-align: center; color: var(--accent); font-size: 11px; }
+        .benefit-divider { border: none; border-top: 1px solid var(--glass-border); margin: 8px 0; }
+
+        /* Admin benefit form */
+        .benefit-form-box { background: rgba(0,234,255,0.04); border: 1px dashed var(--accent); border-radius: 10px; padding: 10px; margin-top: 10px; }
+        .benefit-form-title { font-size: 9px; color: var(--accent); font-family: 'Orbitron'; margin-bottom: 8px; display: flex; align-items: center; gap: 5px; }
+        .benefit-row { display: flex; gap: 6px; align-items: center; margin-bottom: 6px; }
+        .benefit-row select { width: 44px; padding: 8px 4px; font-size: 12px; text-align: center; flex-shrink: 0; }
+        .benefit-row input { flex: 1; margin-bottom: 0; }
+        .benefit-row .del-benefit-btn { width: 28px; height: 28px; background: rgba(255,0,85,0.15); border: 1px solid var(--dev-color); color: var(--dev-color); border-radius: 6px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; font-size: 11px; }
+        .add-benefit-row-btn { background: rgba(0,234,255,0.08); border: 1px dashed var(--accent); color: var(--accent); width: 100%; padding: 7px; border-radius: 8px; font-size: 9px; font-family: 'Orbitron'; font-weight: 700; cursor: pointer; margin-top: 4px; }
+        .benefit-tag { display: inline-flex; align-items: center; gap: 4px; background: rgba(0,234,255,0.08); border: 1px solid rgba(0,234,255,0.2); border-radius: 16px; padding: 2px 8px; font-size: 8px; color: var(--accent); margin: 2px; }
     </style>
 </head>
 <body class="android-optimized">
@@ -499,6 +515,9 @@
         <div class="qr-code-section">
             <img src="" id="qr-code-image" alt="QR Code">
             <p style="font-size:7px; margin-top:4px; opacity:0.5;">Scan QR untuk pembayaran cepat</p>
+            <button onclick="downloadQR()" style="margin-top:8px; background:linear-gradient(135deg,var(--gold),#ffaa00); color:#000; border:none; padding:8px 18px; border-radius:8px; font-family:'Orbitron'; font-size:9px; font-weight:900; cursor:pointer; display:inline-flex; align-items:center; gap:6px; min-height:36px;">
+                <i class="fa-solid fa-download"></i> DOWNLOAD QR
+            </button>
         </div>
         
         <button class="confirm-btn" onclick="sendPaymentConfirmation()">
@@ -603,8 +622,16 @@
                     <i class="fa-solid fa-coins"></i>
                     <input type="text" id="new-item-price" placeholder="Harga (contoh: 50000)">
                 </div>
+
+                <div class="benefit-form-box">
+                    <div class="benefit-form-title"><i class="fa-solid fa-star"></i> BENEFIT PRODUK (opsional)</div>
+                    <div id="benefit-rows-container"></div>
+                    <button class="add-benefit-row-btn" onclick="addBenefitRow()">
+                        <i class="fa-solid fa-plus"></i> TAMBAH BENEFIT
+                    </button>
+                </div>
                 
-                <button class="save-product-btn" onclick="addNewItem()">
+                <button class="save-product-btn" onclick="addNewItem()" style="margin-top:10px;">
                     <i class="fa-solid fa-floppy-disk"></i> SIMPAN PRODUK
                 </button>
             </div>
@@ -688,6 +715,9 @@
                     </div>
                     <div class="payment-preview-qr" id="preview-qr-container">
                         <img src="" id="preview-qr-image" alt="QR Code Preview">
+                        <button onclick="downloadQR()" style="margin-top:8px; background:linear-gradient(135deg,var(--gold),#ffaa00); color:#000; border:none; padding:7px 14px; border-radius:8px; font-family:'Orbitron'; font-size:8px; font-weight:900; cursor:pointer; display:inline-flex; align-items:center; gap:5px; min-height:32px;">
+                            <i class="fa-solid fa-download"></i> DOWNLOAD QR
+                        </button>
                     </div>
                 </div>
             </div>
@@ -1716,13 +1746,24 @@
         
         if (catalog) {
             if (data.length > 0) {
-                catalog.innerHTML = data.map(i => `
+                catalog.innerHTML = data.map(i => {
+                    const benefits = i.b && i.b.length > 0
+                        ? `<hr class="benefit-divider">
+                           <div class="benefit-list">${i.b.map(b => `
+                               <div class="benefit-item">
+                                   <i class="${b.icon || 'fa-solid fa-check'}"></i>
+                                   <span>${b.text}</span>
+                               </div>`).join('')}
+                           </div>`
+                        : '';
+                    return `
                     <div class="glass-card">
                         <div class="card-title">${i.n || 'Produk'}</div>
                         <div class="price-tag">Rp ${i.p || '0'}</div>
-                        <button class="buy-btn" onclick="openPay('${i.n || 'Produk'}', '${i.p || '0'}')">ACQUIRE</button>
-                    </div>
-                `).join('');
+                        ${benefits}
+                        <button class="buy-btn" onclick="openPay('${(i.n || 'Produk').replace(/'/g,"\'")}', '${i.p || '0'}')">ACQUIRE</button>
+                    </div>`;
+                }).join('');
             } else {
                 catalog.innerHTML = '<p style="text-align:center; opacity:0.3; padding:16px;">No Assets</p>';
             }
@@ -2247,13 +2288,21 @@ Terima kasih! 🙏
         
         if (name && price) {
             if (!config.prices[category]) config.prices[category] = [];
-            config.prices[category].push({ n: name, p: price });
+            // Kumpulkan benefits dari form
+            const benefits = [];
+            document.querySelectorAll('#benefit-rows-container .benefit-row').forEach(row => {
+                const icon = row.querySelector('select')?.value || 'fa-solid fa-check';
+                const text = row.querySelector('input')?.value.trim() || '';
+                if (text) benefits.push({ icon, text });
+            });
+            config.prices[category].push({ n: name, p: price, b: benefits });
             saveLocal();
             renderAdminProductList();
             publishProductsToCloud();
             
             nameInput.value = "";
             priceInput.value = "";
+            document.getElementById('benefit-rows-container').innerHTML = '';
             
             const activeCat = document.querySelector('.cat-btn.active span')?.innerText.toLowerCase() || 'sewa';
             if (activeCat === category) {
@@ -2285,19 +2334,31 @@ Terima kasih! 🙏
             return;
         }
         
-        list.innerHTML = products.map((item, idx) => `
-            <div class="product-item">
-                <div class="product-info">
-                    <span class="product-name" style="font-size:10px;">${item.n || 'Produk'}</span>
-                    <span class="product-price">
-                        <i class="fa-solid fa-coins"></i> Rp ${item.p || '0'}
-                    </span>
+        list.innerHTML = products.map((item, idx) => {
+            const benefitTags = item.b && item.b.length > 0
+                ? item.b.map(b => `<span class="benefit-tag"><i class="${b.icon || 'fa-solid fa-check'}"></i> ${b.text}</span>`).join('')
+                : '<span style="font-size:7px;opacity:0.4;">Belum ada benefit</span>';
+            return `
+            <div class="product-item" style="flex-direction:column; align-items:flex-start; gap:6px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; width:100%;">
+                    <div class="product-info">
+                        <span class="product-name" style="font-size:10px;">${item.n || 'Produk'}</span>
+                        <span class="product-price">
+                            <i class="fa-solid fa-coins"></i> Rp ${item.p || '0'}
+                        </span>
+                    </div>
+                    <div style="display:flex;gap:4px;">
+                        <div class="delete-product-btn" onclick="openEditBenefit('${category}',${idx})" style="background:rgba(0,234,255,0.1);border-color:var(--accent);color:var(--accent);">
+                            <i class="fa-solid fa-star"></i>
+                        </div>
+                        <div class="delete-product-btn" onclick="deleteProduct('${category}', ${idx})">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </div>
+                    </div>
                 </div>
-                <div class="delete-product-btn" onclick="deleteProduct('${category}', ${idx})">
-                    <i class="fa-solid fa-trash-can"></i>
-                </div>
-            </div>
-        `).join('');
+                <div style="display:flex;flex-wrap:wrap;gap:2px;">${benefitTags}</div>
+            </div>`;
+        }).join('');
     }
     
     function deleteProduct(category, index) {
@@ -2728,6 +2789,127 @@ Terima kasih! 🙏
         }
     }
 
+    function downloadQR() {
+        const qrSrc = config.payment?.qrCode;
+        if (!qrSrc) {
+            alert("⚠️ QR Code belum diset!");
+            return;
+        }
+        // Jika base64 langsung download
+        if (qrSrc.startsWith('data:')) {
+            const a = document.createElement('a');
+            a.href = qrSrc;
+            a.download = 'QR-Payment-UNO-STOREZZ.png';
+            a.click();
+            return;
+        }
+        // Jika URL, fetch dulu lalu download
+        fetch(qrSrc)
+            .then(res => res.blob())
+            .then(blob => {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'QR-Payment-UNO-STOREZZ.png';
+                a.click();
+                URL.revokeObjectURL(url);
+            })
+            .catch(() => {
+                // Fallback: buka di tab baru
+                window.open(qrSrc, '_blank');
+            });
+    }
+
+
+    // ===== ICON PICKER OPTIONS =====
+    const BENEFIT_ICONS = [
+        { v: 'fa-solid fa-check', l: '✅' },
+        { v: 'fa-solid fa-bolt', l: '⚡' },
+        { v: 'fa-solid fa-star', l: '⭐' },
+        { v: 'fa-solid fa-crown', l: '👑' },
+        { v: 'fa-solid fa-shield-halved', l: '🛡️' },
+        { v: 'fa-solid fa-fire', l: '🔥' },
+        { v: 'fa-solid fa-gem', l: '💎' },
+        { v: 'fa-solid fa-rocket', l: '🚀' },
+        { v: 'fa-solid fa-infinity', l: '♾️' },
+        { v: 'fa-solid fa-clock', l: '⏰' },
+        { v: 'fa-solid fa-headset', l: '🎧' },
+        { v: 'fa-solid fa-gift', l: '🎁' },
+        { v: 'fa-solid fa-lock', l: '🔒' },
+        { v: 'fa-solid fa-wifi', l: '📶' },
+        { v: 'fa-solid fa-thumbs-up', l: '👍' },
+    ];
+
+    function iconOptions(selected) {
+        return BENEFIT_ICONS.map(ic =>
+            `<option value="${ic.v}" ${ic.v === selected ? 'selected' : ''}>${ic.l}</option>`
+        ).join('');
+    }
+
+    function addBenefitRow(icon = 'fa-solid fa-check', text = '') {
+        const container = document.getElementById('benefit-rows-container');
+        if (!container) return;
+        const row = document.createElement('div');
+        row.className = 'benefit-row';
+        row.innerHTML = `
+            <select style="width:44px;padding:6px 2px;font-size:13px;text-align:center;">${iconOptions(icon)}</select>
+            <input type="text" placeholder="Contoh: Akses 24 jam" value="${text}" style="margin-bottom:0;">
+            <div class="del-benefit-btn" onclick="this.parentElement.remove()">
+                <i class="fa-solid fa-xmark"></i>
+            </div>
+        `;
+        container.appendChild(row);
+    }
+
+    // Edit benefit produk yang sudah ada
+    let _editBenefitCat = null, _editBenefitIdx = null;
+    function openEditBenefit(cat, idx) {
+        _editBenefitCat = cat;
+        _editBenefitIdx = idx;
+        const item = config.prices[cat][idx];
+        const container = document.getElementById('edit-benefit-rows');
+        if (!container) return;
+        document.getElementById('edit-benefit-name').innerText = item.n;
+        container.innerHTML = '';
+        (item.b || []).forEach(b => {
+            addEditBenefitRow(b.icon, b.text);
+        });
+        document.getElementById('editBenefitModal').style.display = 'flex';
+    }
+
+    function addEditBenefitRow(icon = 'fa-solid fa-check', text = '') {
+        const container = document.getElementById('edit-benefit-rows');
+        if (!container) return;
+        const row = document.createElement('div');
+        row.className = 'benefit-row';
+        row.innerHTML = `
+            <select style="width:44px;padding:6px 2px;font-size:13px;text-align:center;">${iconOptions(icon)}</select>
+            <input type="text" placeholder="Teks benefit" value="${text}" style="margin-bottom:0;">
+            <div class="del-benefit-btn" onclick="this.parentElement.remove()">
+                <i class="fa-solid fa-xmark"></i>
+            </div>
+        `;
+        container.appendChild(row);
+    }
+
+    function saveEditBenefit() {
+        if (_editBenefitCat === null || _editBenefitIdx === null) return;
+        const benefits = [];
+        document.querySelectorAll('#edit-benefit-rows .benefit-row').forEach(row => {
+            const icon = row.querySelector('select')?.value || 'fa-solid fa-check';
+            const text = row.querySelector('input')?.value.trim() || '';
+            if (text) benefits.push({ icon, text });
+        });
+        config.prices[_editBenefitCat][_editBenefitIdx].b = benefits;
+        saveLocal();
+        publishProductsToCloud();
+        renderAdminProductList();
+        const cat = document.querySelector('.cat-btn.active span')?.innerText.toLowerCase() || 'sewa';
+        loadCategory(cat);
+        document.getElementById('editBenefitModal').style.display = 'none';
+        alert('✅ Benefit berhasil disimpan!');
+    }
+
     function saveLocal() {
         localStorage.setItem('uno_cfg', JSON.stringify(config));
     }
@@ -3155,5 +3337,31 @@ Terima kasih! 🙏
         originalOpenModal(id);
     };
 </script>
+
+<!-- EDIT BENEFIT MODAL -->
+<div id="editBenefitModal" class="modal" style="display:none;">
+    <div class="modal-content" style="max-width:380px;">
+        <h2 style="font-family:'Orbitron'; color:var(--accent); font-size:12px; margin-bottom:4px;">
+            <i class="fa-solid fa-star"></i> EDIT BENEFIT
+        </h2>
+        <p id="edit-benefit-name" style="font-size:11px; color:var(--gold); font-weight:900; margin-bottom:12px;"></p>
+
+        <div id="edit-benefit-rows"></div>
+
+        <button class="add-benefit-row-btn" onclick="addEditBenefitRow()">
+            <i class="fa-solid fa-plus"></i> TAMBAH BENEFIT
+        </button>
+
+        <div style="display:flex; gap:8px; margin-top:12px;">
+            <button class="buy-btn" onclick="saveEditBenefit()" style="flex:1; background:var(--accent); color:#000;">
+                <i class="fa-solid fa-floppy-disk"></i> SIMPAN
+            </button>
+            <button class="buy-btn" onclick="document.getElementById('editBenefitModal').style.display='none'" style="flex:1; background:rgba(255,255,255,0.05); color:#fff;">
+                BATAL
+            </button>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>
