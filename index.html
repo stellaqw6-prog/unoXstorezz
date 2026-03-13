@@ -1,0 +1,3367 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>UNO-STOREZZ | UNO XALYA</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* ====== CSS ANDA TETAP SAMA PERSIS ===== */
+        :root { 
+            --accent: #00eaff; 
+            --bg: #020406; 
+            --glass: rgba(255, 255, 255, 0.03); 
+            --glass-border: rgba(255, 255, 255, 0.1); 
+            --dev-color: #ff0055;
+            --gold: #ffcc00;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Rajdhani', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: var(--bg); color: #fff; overflow-x: hidden; padding-bottom: 100px; transition: 0.3s; }
+        
+        .bg-video { position: fixed; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2; filter: brightness(0.2) saturate(1.2); pointer-events: none; }
+        .overlay-vignette { position: fixed; inset: 0; background: radial-gradient(circle, transparent 20%, rgba(0,0,0,0.8) 100%); z-index: -1; pointer-events: none; }
+
+        .android-optimized { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+        button, .cat-btn, .dock-item, .buy-btn, .claim-btn { min-height: 44px; touch-action: manipulation; }
+        input, select, textarea { font-size: 16px !important; }
+
+        #welcome-overlay { 
+            position: fixed; inset: 0; background: #000; z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 1s ease-in-out;
+            background: radial-gradient(circle at 50% 50%, #0a1a2a, #000000); overflow: hidden;
+        }
+        #welcome-overlay::before {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(0,234,255,0.1) 0%, transparent 70%); animation: rotate 20s linear infinite;
+        }
+        #welcome-overlay::after {
+            content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent), var(--dev-color), var(--gold), transparent); animation: scanline 3s linear infinite;
+        }
+        @keyframes rotate { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes scanline { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+        
+        .premium-loader { position: relative; width: 150px; height: 150px; margin-bottom: 30px; z-index: 10; }
+        .premium-loader .ring { position: absolute; width: 100%; height: 100%; border-radius: 50%; border: 2px solid transparent; animation: ringRotate 2s linear infinite; }
+        .premium-loader .ring:nth-child(1) { border-top-color: var(--accent); border-bottom-color: var(--dev-color); animation-duration: 2s; }
+        .premium-loader .ring:nth-child(2) { border-left-color: var(--gold); border-right-color: var(--accent); width: 110px; height: 110px; top: 20px; left: 20px; animation-duration: 3s; animation-direction: reverse; }
+        .premium-loader .ring:nth-child(3) { border-top-color: var(--dev-color); border-bottom-color: var(--gold); width: 70px; height: 70px; top: 40px; left: 40px; animation-duration: 4s; }
+        .premium-loader .core { position: absolute; width: 50px; height: 50px; background: linear-gradient(135deg, var(--accent), var(--dev-color)); border-radius: 50%; top: 50px; left: 50px; display: flex; align-items: center; justify-content: center; color: #000; font-size: 20px; font-weight: 900; box-shadow: 0 0 30px var(--accent); animation: pulse 1.5s ease-in-out infinite; }
+        @keyframes ringRotate { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes pulse { 0% { transform: scale(1); box-shadow: 0 0 30px var(--accent); } 50% { transform: scale(1.1); box-shadow: 0 0 50px var(--accent), 0 0 50px var(--dev-color); } 100% { transform: scale(1); box-shadow: 0 0 30px var(--accent); } }
+        
+        .premium-title { font-family: 'Orbitron'; font-size: 32px; font-weight: 900; text-transform: uppercase; letter-spacing: 6px; margin-bottom: 15px; position: relative; z-index: 10; background: linear-gradient(135deg, #fff, var(--accent), var(--dev-color), var(--gold)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 0 30px rgba(0,234,255,0.3); animation: glow 3s ease-in-out infinite; }
+        @keyframes glow { 0% { filter: brightness(1); } 50% { filter: brightness(1.2); } 100% { filter: brightness(1); } }
+        
+        .premium-subtitle { font-family: 'Orbitron'; font-size: 12px; letter-spacing: 3px; color: #ccc; margin-bottom: 30px; position: relative; z-index: 10; text-transform: uppercase; }
+        .premium-subtitle span { color: var(--accent); font-weight: 900; }
+        
+        .enter-btn { background: rgba(255,255,255,0.03); border: 2px solid var(--accent); color: var(--accent); padding: 15px 40px; font-family: 'Orbitron'; font-size: 12px; font-weight: 900; letter-spacing: 3px; border-radius: 50px; cursor: pointer; transition: 0.3s; position: relative; z-index: 10; overflow: hidden; backdrop-filter: blur(10px); box-shadow: 0 0 20px rgba(0,234,255,0.2); min-height: 50px; }
+        .enter-btn:active { background: var(--accent); color: #000; transform: scale(0.98); }
+
+        header { padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; background: rgba(2,4,6,0.9); backdrop-filter: blur(15px); border-bottom: 1px solid var(--glass-border); }
+        .logo { font-family: 'Orbitron'; font-size: 1rem; font-weight: 900; letter-spacing: 2px; background: linear-gradient(90deg, #fff, var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .profile-btn { width: 36px; height: 36px; border-radius: 10px; border: 1.5px solid var(--accent); object-fit: cover; box-shadow: 0 0 10px var(--accent); }
+
+        .app-container { max-width: 480px; margin: 0 auto; padding: 12px; }
+
+        .hero-card { border-radius: 20px; overflow: hidden; margin-bottom: 16px; border: 1px solid var(--glass-border); height: 160px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); position: relative; }
+        .slider-wrapper { display: flex; height: 100%; transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1); }
+        .slide { min-width: 100%; height: 100%; }
+        .slide img { width: 100%; height: 100%; object-fit: cover; }
+
+        .gacha-box { background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(0,234,255,0.05)); border: 1px solid var(--glass-border); padding: 12px; border-radius: 16px; margin-bottom: 16px; position: relative; overflow: hidden; }
+        .gacha-title { font-family: 'Orbitron'; font-size: 11px; color: var(--accent); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; font-weight: 700; }
+        
+        .prize-list { display: flex; flex-direction: column; gap: 4px; margin: 8px 0; padding: 8px; background: rgba(0,0,0,0.3); border-radius: 10px; max-height: 180px; overflow-y: auto; }
+        .prize-item { display: flex; align-items: center; gap: 6px; padding: 5px 8px; background: rgba(255,255,255,0.02); border-radius: 6px; font-size: 8px; }
+        .prize-item i { width: 14px; color: var(--gold); }
+        .prize-item .prize-name { flex: 1; color: #fff; }
+        .prize-item .prize-chance { font-size: 7px; padding: 2px 4px; background: rgba(255,204,0,0.2); border-radius: 8px; color: var(--gold); }
+        .prize-legendary { border-left: 2px solid #ff00aa; }
+        .prize-epic { border-left: 2px solid #aa00ff; }
+        .prize-rare { border-left: 2px solid #00aaff; }
+        .prize-common { border-left: 2px solid #aaa; }
+
+        .category-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 20px; }
+        .cat-btn { background: var(--glass); border: 1px solid var(--glass-border); padding: 10px 3px; border-radius: 12px; text-align: center; transition: 0.3s; }
+        .cat-btn.active { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 15px var(--accent); }
+        .cat-btn.active i, .cat-btn.active span { color: #000; }
+        .cat-btn i { font-size: 1.1rem; margin-bottom: 4px; color: var(--accent); display: block; }
+        .cat-btn span { font-size: 8px; font-weight: 700; text-transform: uppercase; font-family: 'Orbitron'; }
+
+        .glass-card { background: var(--glass); backdrop-filter: blur(10px); border: 1px solid var(--glass-border); border-radius: 16px; padding: 14px; margin-bottom: 12px; transition: 0.3s; }
+        .card-title { font-family: 'Orbitron'; font-size: 13px; margin-bottom: 4px; letter-spacing: 1px; }
+        .price-tag { font-size: 1.3rem; font-weight: 800; color: var(--accent); margin-bottom: 12px; font-family: 'Rajdhani'; }
+
+        .buy-btn { width: 100%; padding: 12px; border-radius: 10px; border: none; background: linear-gradient(90deg, var(--accent), #00b4d8); color: #000; font-weight: 900; font-family: 'Orbitron'; cursor: pointer; font-size: 10px; text-transform: uppercase; transition: 0.3s; box-shadow: 0 4px 15px rgba(0, 234, 255, 0.3); min-height: 44px; }
+        .buy-btn:active { transform: scale(0.98); }
+        
+        .claim-btn { background: linear-gradient(135deg, var(--gold), #ffaa00); color: #000; border: none; padding: 10px; border-radius: 8px; font-family: 'Orbitron'; font-size: 9px; font-weight: 900; cursor: pointer; transition: 0.3s; width: 100%; display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 8px; min-height: 40px; }
+        .claim-btn:active { transform: scale(0.98); }
+        .claim-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+        .dock-nav { position: fixed; bottom: 10px; left: 50%; transform: translateX(-50%); width: 95%; max-width: 420px; height: 60px; background: rgba(5, 7, 10, 0.9); backdrop-filter: blur(20px); border: 1px solid var(--glass-border); border-radius: 18px; display: flex; align-items: center; z-index: 1000; }
+        .dock-item { color: #666; flex: 1; text-align: center; font-size: 9px; font-family: 'Orbitron'; text-decoration: none; font-weight: 700; transition: 0.3s; min-height: 50px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .dock-item.active { color: var(--accent); }
+        .dock-item i { font-size: 1.2rem; margin-bottom: 2px; display: block; }
+
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 2000; display: none; align-items: center; justify-content: center; padding: 15px; backdrop-filter: blur(10px); }
+        .modal-content { background: #080a0f; border: 1px solid var(--accent); border-radius: 20px; width: 100%; max-width: 380px; max-height: 80vh; overflow-y: auto; padding: 20px; position: relative; }
+        input, select, textarea { width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); padding: 12px; border-radius: 10px; color: #fff; margin-bottom: 8px; outline: none; font-size: 16px !important; }
+
+        .color-picker-container { display: flex; gap: 6px; justify-content: center; margin: 12px 0; flex-wrap: wrap; }
+        .color-dot { width: 26px; height: 26px; border-radius: 6px; cursor: pointer; border: 1.5px solid rgba(255,255,255,0.1); transition: 0.2s; }
+        .color-dot:active { transform: scale(0.9); }
+
+        .tab-nav { display: flex; gap: 4px; overflow-x: auto; margin-bottom: 12px; padding-bottom: 5px; }
+        .tab-item { white-space: nowrap; padding: 7px 12px; background: var(--glass); border-radius: 8px; font-size: 9px; font-family: 'Orbitron'; cursor: pointer; }
+        .tab-item.active { background: var(--dev-color); color: #fff; }
+
+        .payment-detail-card { background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); border-radius: 12px; padding: 12px; margin-bottom: 16px; }
+        .payment-method { display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.02); border: 1px solid var(--glass-border); border-radius: 10px; padding: 10px; margin: 12px 0; }
+        .payment-method i { font-size: 1.3rem; color: var(--gold); }
+        .payment-method .method-name { font-weight: 900; color: var(--accent); font-size: 11px; }
+        .bank-account { background: linear-gradient(135deg, rgba(0,234,255,0.1), rgba(255,204,0,0.1)); border: 1px solid var(--gold); border-radius: 10px; padding: 12px; text-align: center; margin: 12px 0; }
+        .bank-account .account-number { font-family: 'Orbitron'; font-size: 16px; font-weight: 900; color: var(--gold); letter-spacing: 2px; }
+        .bank-account .account-name { font-size: 9px; color: #ccc; margin-top: 4px; }
+        .upload-section { background: rgba(255,255,255,0.02); border: 2px dashed var(--accent); border-radius: 12px; padding: 16px; text-align: center; margin: 12px 0; cursor: pointer; transition: 0.3s; }
+        .upload-section:active { background: rgba(0,234,255,0.05); }
+        .upload-section i { font-size: 1.8rem; color: var(--accent); margin-bottom: 8px; }
+        .upload-section .file-name { font-size: 8px; color: var(--gold); margin-top: 8px; word-break: break-all; }
+        #payment-proof { display: none; }
+        .payment-info-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--glass-border); }
+        .payment-info-row:last-child { border-bottom: none; }
+        .payment-info-label { font-size: 9px; color: #ccc; font-family: 'Orbitron'; }
+        .payment-info-value { font-size: 11px; font-weight: 900; color: #fff; }
+        .payment-info-value.highlight { color: var(--gold); font-size: 13px; }
+        .confirm-btn { background: linear-gradient(135deg, var(--gold), #ffaa00); color: #000; border: none; padding: 14px; border-radius: 10px; font-family: 'Orbitron'; font-size: 11px; font-weight: 900; cursor: pointer; transition: 0.3s; width: 100%; display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 16px; min-height: 48px; }
+        .confirm-btn:active { transform: scale(0.98); }
+        .qr-code-section { text-align: center; margin: 12px 0; }
+        .qr-code-section img { width: 130px; height: 130px; border-radius: 12px; border: 2px solid var(--accent); padding: 4px; background: #fff; }
+
+        .name-tag-container { display: flex; justify-content: center; margin: 12px 0; }
+        .name-tag { display: inline-flex; align-items: center; gap: 6px; padding: 7px 16px; border-radius: 25px; font-family: 'Orbitron'; font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; position: relative; overflow: hidden; }
+        .name-tag.member-tag { background: linear-gradient(135deg, var(--accent), #0088ff); color: #000; box-shadow: 0 0 20px rgba(0,234,255,0.5); border: 1px solid rgba(255,255,255,0.3); }
+        .name-tag.developer-tag { background: linear-gradient(135deg, var(--dev-color), #ff4400); color: #000; box-shadow: 0 0 20px rgba(255,0,85,0.5); border: 1px solid rgba(255,255,255,0.3); }
+        .name-tag::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent); transform: rotate(45deg); animation: shine 3s infinite; }
+        @keyframes shine { 0% { transform: translateX(-100%) rotate(45deg); } 100% { transform: translateX(100%) rotate(45deg); } }
+        .edit-name-btn { background: var(--glass); border: 1px solid var(--accent); color: var(--accent); padding: 7px 12px; border-radius: 8px; font-size: 8px; font-family: 'Orbitron'; font-weight: 700; cursor: pointer; transition: 0.3s; display: inline-flex; align-items: center; gap: 4px; margin-left: 8px; min-height: 36px; }
+        .edit-name-btn:active { background: var(--accent); color: #000; }
+        .profile-name-section { display: flex; align-items: center; justify-content: center; margin-bottom: 12px; flex-wrap: wrap; }
+
+        .julukan-badge { display: inline-flex; align-items: center; gap: 3px; padding: 3px 8px; background: linear-gradient(135deg, var(--gold), #ffaa00); border-radius: 16px; font-size: 8px; font-weight: 900; color: #000; font-family: 'Orbitron'; box-shadow: 0 0 10px rgba(255,204,0,0.3); margin-left: 4px; }
+        .profile-julukan { display: inline-block; padding: 2px 8px; background: linear-gradient(135deg, var(--gold), #ffaa00); border-radius: 12px; color: #000; font-size: 8px; font-weight: 900; font-family: 'Orbitron'; margin-top: 4px; box-shadow: 0 0 10px rgba(255,204,0,0.3); }
+        .set-julukan-btn { background: linear-gradient(135deg, var(--gold), #ffaa00); border: none; color: #000; padding: 4px 8px; border-radius: 6px; font-size: 7px; font-weight: 900; font-family: 'Orbitron'; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 3px; margin-right: 6px; min-height: 32px; }
+        .set-julukan-btn:active { transform: scale(0.95); }
+
+        .members-header { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; padding: 12px; background: linear-gradient(135deg, rgba(255,255,255,0.03), rgba(0,234,255,0.05)); border-radius: 12px; border: 1px solid var(--glass-border); position: relative; overflow: hidden; }
+        .members-header::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--accent), var(--dev-color), var(--gold)); }
+        .members-header-icon { width: 36px; height: 36px; background: linear-gradient(135deg, var(--accent), var(--dev-color)); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; color: #000; box-shadow: 0 0 20px rgba(0,234,255,0.3); }
+        .members-stats { display: flex; gap: 8px; margin-bottom: 16px; }
+        .stat-card { flex: 1; background: rgba(255,255,255,0.02); border: 1px solid var(--glass-border); border-radius: 10px; padding: 8px; text-align: center; }
+        .stat-card .stat-value { font-family: 'Orbitron'; font-size: 14px; font-weight: 900; color: #fff; }
+        .members-list { max-height: 280px; overflow-y: auto; padding-right: 4px; margin-bottom: 12px; }
+        .members-list::-webkit-scrollbar { width: 3px; }
+        .members-list::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); border-radius: 8px; }
+        .members-list::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 8px; }
+        .member-card { background: rgba(255,255,255,0.02); border: 1px solid var(--glass-border); border-radius: 14px; padding: 12px; margin-bottom: 8px; transition: 0.3s; position: relative; overflow: hidden; }
+        .member-card:active { border-color: var(--accent); transform: translateX(3px); }
+        .member-card.developer { border-left: 3px solid var(--dev-color); background: linear-gradient(135deg, rgba(255,0,85,0.05), rgba(255,255,255,0.02)); }
+        .member-card.member { border-left: 3px solid var(--accent); }
+        .member-avatar { width: 40px; height: 40px; border-radius: 12px; background: linear-gradient(135deg, var(--accent), var(--dev-color)); display: flex; align-items: center; justify-content: center; font-size: 1.3rem; color: #000; font-weight: 900; box-shadow: 0 0 15px rgba(0,234,255,0.3); }
+        .member-card.developer .member-avatar { background: linear-gradient(135deg, var(--dev-color), #ff8800); box-shadow: 0 0 15px rgba(255,0,85,0.3); }
+        .member-badge { padding: 2px 6px; border-radius: 16px; font-size: 7px; font-weight: 900; font-family: 'Orbitron'; text-transform: uppercase; display: inline-flex; align-items: center; gap: 3px; }
+        .badge-developer { background: linear-gradient(135deg, var(--dev-color), #ff4400); color: #000; box-shadow: 0 0 10px rgba(255,0,85,0.3); }
+        .badge-member { background: linear-gradient(135deg, var(--accent), #0088ff); color: #000; box-shadow: 0 0 10px rgba(0,234,255,0.3); }
+        .member-subscriptions { background: rgba(0,0,0,0.3); border-radius: 10px; padding: 8px; margin-bottom: 10px; border: 1px solid var(--glass-border); }
+        .subs-title { font-size: 7px; color: var(--accent); margin-bottom: 4px; font-family: 'Orbitron'; display: flex; align-items: center; gap: 3px; }
+        .subs-item { background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); border-radius: 6px; padding: 3px 6px; font-size: 7px; display: flex; align-items: center; gap: 3px; }
+        .subs-item.expired { opacity: 0.5; border-color: rgba(255,0,0,0.3); }
+        .delete-member-btn { background: rgba(255,0,85,0.1); border: 1px solid var(--dev-color); color: var(--dev-color); padding: 7px 12px; border-radius: 8px; font-size: 8px; font-family: 'Orbitron'; font-weight: 700; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 4px; min-height: 36px; }
+        .delete-member-btn:active { background: var(--dev-color); color: #000; transform: scale(0.98); }
+
+        .price-header { display: flex; align-items: center; gap: 6px; margin-bottom: 12px; padding: 8px; background: rgba(255,255,255,0.02); border-radius: 10px; border: 1px solid var(--glass-border); }
+        .price-header i { color: var(--dev-color); font-size: 1.1rem; }
+        .category-selector select { background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,0,85,0.1)); border: 1px solid var(--dev-color); color: #fff; font-family: 'Orbitron'; font-size: 10px; cursor: pointer; padding: 10px; }
+        .product-grid { display: grid; gap: 8px; margin-bottom: 16px; max-height: 220px; overflow-y: auto; padding: 4px; }
+        .product-item { background: linear-gradient(135deg, rgba(255,255,255,0.02), rgba(255,0,85,0.05)); border: 1px solid var(--glass-border); border-radius: 10px; padding: 10px; display: flex; justify-content: space-between; align-items: center; transition: 0.3s; position: relative; overflow: hidden; }
+        .product-item::before { content: ''; position: absolute; left: 0; top: 0; height: 100%; width: 3px; background: var(--dev-color); box-shadow: 0 0 10px var(--dev-color); }
+        .product-item:active { border-color: var(--dev-color); transform: translateX(3px); }
+        .product-price { font-size: 12px; font-weight: 800; color: var(--gold); display: flex; align-items: center; gap: 3px; }
+        .delete-product-btn { background: rgba(255,0,85,0.1); border: 1px solid var(--dev-color); color: var(--dev-color); width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.3s; }
+        .delete-product-btn:active { background: var(--dev-color); color: #000; transform: scale(1.05); }
+        .add-product-form { background: rgba(255,255,255,0.02); border: 1px solid var(--glass-border); border-radius: 12px; padding: 12px; margin-top: 12px; }
+        .form-title { display: flex; align-items: center; gap: 6px; margin-bottom: 12px; color: var(--gold); font-family: 'Orbitron'; font-size: 9px; }
+        .input-group { position: relative; margin-bottom: 10px; }
+        .input-group i { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--dev-color); font-size: 11px; opacity: 0.7; }
+        .input-group input { padding-left: 32px; font-size: 11px; }
+        .save-product-btn { background: linear-gradient(135deg, var(--dev-color), #ff4d4d); color: #000; border: none; padding: 12px; border-radius: 10px; font-family: 'Orbitron'; font-size: 10px; font-weight: 900; cursor: pointer; transition: 0.3s; width: 100%; display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 8px; min-height: 44px; }
+        .empty-products { text-align: center; padding: 25px; color: #666; font-family: 'Orbitron'; font-size: 9px; border: 2px dashed var(--glass-border); border-radius: 12px; }
+        .empty-products i { font-size: 25px; margin-bottom: 8px; color: var(--dev-color); opacity: 0.3; }
+
+        .gacha-header { display: flex; align-items: center; gap: 6px; margin-bottom: 12px; padding: 8px; background: rgba(255,255,255,0.02); border-radius: 10px; border: 1px solid var(--glass-border); }
+        .gacha-header i { color: var(--gold); font-size: 1.1rem; }
+        .gacha-prize-grid { display: grid; gap: 8px; margin-bottom: 16px; max-height: 220px; overflow-y: auto; padding: 4px; }
+        .gacha-prize-item { background: linear-gradient(135deg, rgba(255,255,255,0.02), rgba(255,204,0,0.05)); border: 1px solid var(--glass-border); border-radius: 10px; padding: 10px; display: flex; justify-content: space-between; align-items: center; transition: 0.3s; position: relative; overflow: hidden; }
+        .gacha-prize-item::before { content: ''; position: absolute; left: 0; top: 0; height: 100%; width: 3px; background: var(--gold); box-shadow: 0 0 10px var(--gold); }
+        .gacha-prize-item:active { border-color: var(--gold); transform: translateX(3px); }
+        .gacha-prize-info { display: flex; flex-direction: column; gap: 3px; }
+        .gacha-prize-name { font-family: 'Orbitron'; font-size: 11px; font-weight: 700; color: #fff; }
+        .gacha-prize-details { display: flex; gap: 6px; font-size: 8px; flex-wrap: wrap; }
+        .gacha-prize-type { padding: 1px 4px; background: rgba(255,204,0,0.1); border-radius: 3px; color: var(--gold); }
+        .gacha-prize-weight { padding: 1px 4px; background: rgba(255,255,255,0.05); border-radius: 3px; }
+        .delete-gacha-btn { background: rgba(255,0,85,0.1); border: 1px solid var(--dev-color); color: var(--dev-color); width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.3s; }
+        .delete-gacha-btn:active { background: var(--dev-color); color: #000; transform: scale(1.05); }
+        .delete-all-gacha-btn { background: rgba(255,0,85,0.2); border: 1px solid var(--dev-color); color: var(--dev-color); padding: 10px; border-radius: 8px; font-size: 9px; font-family: 'Orbitron'; font-weight: 900; cursor: pointer; transition: 0.3s; width: 100%; display: flex; align-items: center; justify-content: center; gap: 6px; margin: 12px 0; min-height: 44px; }
+        .add-gacha-form { background: rgba(255,255,255,0.02); border: 1px solid var(--glass-border); border-radius: 12px; padding: 12px; margin-top: 12px; }
+        .weight-slider { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+        .weight-slider input[type="range"] { flex: 1; height: 4px; -webkit-appearance: none; background: linear-gradient(90deg, var(--gold), var(--dev-color)); border-radius: 2px; padding: 0; }
+        .weight-slider input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; background: var(--gold); border-radius: 50%; cursor: pointer; border: 2px solid #000; box-shadow: 0 0 10px var(--gold); }
+        .weight-value { font-family: 'Orbitron'; font-size: 11px; font-weight: 900; color: var(--gold); min-width: 35px; }
+        .total-weight { text-align: center; font-size: 9px; color: #ccc; margin-top: 8px; padding: 6px; background: rgba(255,255,255,0.02); border-radius: 6px; }
+        .total-weight span { color: var(--gold); font-weight: 900; font-size: 11px; }
+
+        .payment-header { display: flex; align-items: center; gap: 6px; margin-bottom: 12px; padding: 8px; background: rgba(255,255,255,0.02); border-radius: 10px; border: 1px solid var(--glass-border); }
+        .payment-header i { color: var(--gold); font-size: 1.1rem; }
+        .payment-preview { background: rgba(255,255,255,0.02); border: 1px solid var(--glass-border); border-radius: 12px; padding: 12px; margin-bottom: 16px; }
+        .payment-preview-title { font-size: 8px; color: var(--accent); margin-bottom: 8px; font-family: 'Orbitron'; display: flex; align-items: center; gap: 3px; }
+        .payment-preview-content { background: rgba(0,0,0,0.3); border-radius: 10px; padding: 12px; margin-bottom: 8px; }
+        .payment-preview-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--glass-border); }
+        .payment-preview-row:last-child { border-bottom: none; }
+        .payment-preview-label { font-size: 8px; color: #ccc; }
+        .payment-preview-value { font-size: 10px; font-weight: 900; color: var(--gold); }
+        .payment-preview-qr { text-align: center; margin-top: 12px; }
+        .payment-preview-qr img { width: 90px; height: 90px; border-radius: 8px; border: 1px solid var(--gold); padding: 2px; background: #fff; }
+        .payment-edit-form { background: rgba(255,255,255,0.02); border: 1px solid var(--glass-border); border-radius: 12px; padding: 12px; margin-top: 12px; }
+        .payment-edit-title { display: flex; align-items: center; gap: 6px; margin-bottom: 12px; color: var(--gold); font-family: 'Orbitron'; font-size: 9px; }
+        .payment-input-group { position: relative; margin-bottom: 10px; }
+        .payment-input-group i { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--gold); font-size: 11px; opacity: 0.7; }
+        .payment-input-group input { padding-left: 32px; font-size: 11px; }
+        .payment-input-group input:focus { border-color: var(--gold); box-shadow: 0 0 10px rgba(255,204,0,0.2); }
+        .payment-methods-container { margin-bottom: 12px; padding: 8px; background: rgba(255,255,255,0.02); border-radius: 8px; }
+        .payment-methods-title { font-size: 8px; color: var(--accent); margin-bottom: 6px; font-family: 'Orbitron'; display: flex; align-items: center; gap: 3px; }
+        .payment-checkbox-group { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
+        .payment-checkbox { display: flex; align-items: center; gap: 4px; cursor: pointer; }
+        .payment-checkbox input[type="checkbox"] { width: 14px; height: 14px; margin: 0; cursor: pointer; accent-color: var(--gold); }
+        .payment-checkbox span { font-size: 9px; font-weight: 700; color: #fff; }
+        .payment-checkbox i { font-size: 11px; color: var(--gold); }
+        .qr-upload-section { background: rgba(255,255,255,0.02); border: 2px dashed var(--gold); border-radius: 10px; padding: 12px; text-align: center; margin: 12px 0; cursor: pointer; transition: 0.3s; }
+        .qr-upload-section:active { background: rgba(255,204,0,0.05); }
+        .qr-upload-section i { font-size: 1.3rem; color: var(--gold); margin-bottom: 4px; }
+        .qr-upload-section p { font-size: 8px; color: #ccc; }
+        #qr-upload { display: none; }
+        .save-payment-btn { background: linear-gradient(135deg, var(--gold), #ffaa00); color: #000; border: none; padding: 12px; border-radius: 10px; font-family: 'Orbitron'; font-size: 10px; font-weight: 900; cursor: pointer; transition: 0.3s; width: 100%; display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 8px; min-height: 44px; }
+        .save-payment-btn:active { transform: scale(0.98); }
+
+        .subscription-card { background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); border-radius: 14px; padding: 12px; margin-bottom: 10px; transition: 0.3s; }
+        .subscription-card:active { border-color: var(--gold); transform: translateX(3px); background: rgba(255,255,255,0.05); }
+        .sub-card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+        .sub-member-avatar { width: 36px; height: 36px; background: linear-gradient(135deg, var(--gold), var(--accent)); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 16px; color: #000; box-shadow: 0 0 15px rgba(255,204,0,0.3); }
+        .sub-member-info { flex: 1; }
+        .sub-member-name { font-weight: 900; font-size: 11px; margin-bottom: 3px; }
+        .sub-badge { display: inline-flex; align-items: center; gap: 3px; padding: 3px 6px; border-radius: 6px; font-size: 7px; font-weight: 900; }
+        .badge-premium { background: linear-gradient(135deg, var(--gold), #ffaa00); color: #000; }
+        .badge-sewa { background: linear-gradient(135deg, var(--accent), #0088ff); color: #000; }
+        .sub-details { background: rgba(0,0,0,0.2); border-radius: 10px; padding: 8px; margin-bottom: 10px; }
+        .sub-detail-item { display: flex; align-items: center; gap: 6px; font-size: 9px; padding: 3px 0; color: #ccc; }
+        .sub-detail-item i { width: 14px; color: var(--gold); }
+        .days-left { font-weight: 900; color: var(--gold); }
+        .days-left.urgent { color: #ff5555; animation: pulse 1s infinite; }
+        .days-left.expired { color: #ff5555; }
+        .progress-bar-container { width: 100%; height: 3px; background: rgba(255,255,255,0.1); border-radius: 2px; margin-top: 6px; overflow: hidden; }
+        .progress-bar { height: 100%; background: linear-gradient(90deg, var(--gold), var(--accent)); border-radius: 2px; transition: width 0.3s ease; }
+        .sub-actions { display: flex; gap: 6px; }
+        .edit-sub-btn { flex: 1; background: rgba(255,204,0,0.1); border: 1px solid var(--gold); color: var(--gold); padding: 7px; border-radius: 6px; font-size: 8px; font-family: 'Orbitron'; font-weight: 700; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 3px; min-height: 36px; }
+        .edit-sub-btn:active { background: var(--gold); color: #000; }
+        .delete-sub-btn { flex: 1; background: rgba(255,0,85,0.1); border: 1px solid var(--dev-color); color: var(--dev-color); padding: 7px; border-radius: 6px; font-size: 8px; font-family: 'Orbitron'; font-weight: 700; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 3px; min-height: 36px; }
+        .delete-sub-btn:active { background: var(--dev-color); color: #000; }
+        .filter-tabs { display: flex; gap: 4px; margin-bottom: 12px; flex-wrap: wrap; }
+        .filter-tab { flex: 1; padding: 7px; background: var(--glass); border: 1px solid var(--glass-border); border-radius: 6px; text-align: center; font-size: 8px; font-family: 'Orbitron'; cursor: pointer; transition: 0.3s; min-height: 36px; display: flex; align-items: center; justify-content: center; }
+        .filter-tab.active { background: var(--gold); color: #000; border-color: var(--gold); }
+        .filter-tab:active { transform: scale(0.97); }
+        .quick-add-badge { display: inline-block; padding: 2px 5px; background: rgba(255,204,0,0.2); border: 1px solid var(--gold); border-radius: 4px; font-size: 6px; color: var(--gold); margin-left: 4px; cursor: pointer; min-height: 24px; min-width: 40px; text-align: center; line-height: 20px; }
+        .quick-add-badge:active { background: var(--gold); color: #000; }
+
+        .my-subs-section { margin-top: 16px; margin-bottom: 16px; background: linear-gradient(135deg, rgba(255,255,255,0.03), rgba(0,234,255,0.03)); border-radius: 16px; padding: 12px; border: 1px solid var(--glass-border); }
+        .my-subs-title { font-family: 'Orbitron'; font-size: 11px; color: var(--gold); margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+        .my-subs-title i { color: var(--gold); }
+        .my-subs-legend { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; padding: 8px; background: rgba(0,0,0,0.2); border-radius: 8px; font-size: 7px; }
+        .legend-item { display: flex; align-items: center; gap: 4px; flex: 1; min-width: 70px; }
+        .legend-color { width: 10px; height: 10px; border-radius: 2px; }
+        .legend-color.gold { background: var(--gold); box-shadow: 0 0 5px var(--gold); }
+        .legend-color.cyan { background: var(--accent); box-shadow: 0 0 5px var(--accent); }
+        .legend-color.green { background: #00ff00; box-shadow: 0 0 5px #00ff00; }
+        .legend-color.orange { background: #ffaa00; box-shadow: 0 0 5px #ffaa00; animation: pulse 1s infinite; }
+        .legend-color.red { background: #ff5555; box-shadow: 0 0 5px #ff5555; }
+        .legend-text { color: #ccc; }
+        .my-sub-card { background: rgba(0,0,0,0.3); border-radius: 12px; padding: 12px; margin-bottom: 10px; border-left: 3px solid; transition: 0.3s; }
+        .my-sub-card.premium { border-left-color: var(--gold); }
+        .my-sub-card.sewa { border-left-color: var(--accent); }
+        .my-sub-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+        .my-sub-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+        .my-sub-icon.premium { background: rgba(255,204,0,0.2); color: var(--gold); }
+        .my-sub-icon.sewa { background: rgba(0,234,255,0.2); color: var(--accent); }
+        .my-sub-info { flex: 1; }
+        .my-sub-type { font-weight: 900; font-size: 11px; margin-bottom: 2px; }
+        .my-sub-date { font-size: 8px; color: #ccc; display: flex; align-items: center; gap: 4px; }
+        .my-sub-stats { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .my-sub-days { font-size: 20px; font-weight: 900; font-family: 'Orbitron'; }
+        .my-sub-days small { font-size: 10px; font-weight: normal; color: #ccc; }
+        .my-sub-status { padding: 4px 8px; border-radius: 20px; font-size: 8px; font-weight: 900; }
+        .status-active { background: rgba(0,255,0,0.2); color: #00ff00; border: 1px solid rgba(0,255,0,0.3); }
+        .status-expiring { background: rgba(255,165,0,0.2); color: #ffaa00; border: 1px solid rgba(255,165,0,0.3); animation: pulse 1s infinite; }
+        .status-expired { background: rgba(255,0,0,0.2); color: #ff5555; border: 1px solid rgba(255,0,0,0.3); }
+        .my-sub-progress { margin-top: 8px; }
+        .my-sub-progress-bar { width: 100%; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden; margin-bottom: 4px; }
+        .my-sub-progress-fill { height: 100%; background: linear-gradient(90deg, var(--gold), var(--accent)); border-radius: 2px; transition: width 0.3s ease; }
+        .my-sub-progress-text { display: flex; justify-content: space-between; font-size: 7px; color: #ccc; }
+        .my-sub-empty { text-align: center; padding: 20px; color: #666; font-size: 10px; border: 2px dashed var(--glass-border); border-radius: 12px; }
+        .my-sub-empty i { font-size: 30px; margin-bottom: 8px; color: var(--gold); opacity: 0.3; }
+        .my-sub-info-text { margin-top: 8px; padding: 6px; background: rgba(255,255,255,0.02); border-radius: 6px; font-size: 7px; color: #999; text-align: center; border: 1px dashed var(--glass-border); }
+        .my-sub-info-text i { color: var(--gold); margin-right: 4px; }
+
+        /* ===== BENEFIT STYLES ===== */
+        .benefit-list { display: flex; flex-direction: column; gap: 5px; margin: 10px 0 12px; }
+        .benefit-item { display: flex; align-items: center; gap: 7px; font-size: 10px; color: #ccc; }
+        .benefit-item i { width: 16px; text-align: center; color: var(--accent); font-size: 11px; }
+        .benefit-divider { border: none; border-top: 1px solid var(--glass-border); margin: 8px 0; }
+
+        /* Admin benefit form */
+        .benefit-form-box { background: rgba(0,234,255,0.04); border: 1px dashed var(--accent); border-radius: 10px; padding: 10px; margin-top: 10px; }
+        .benefit-form-title { font-size: 9px; color: var(--accent); font-family: 'Orbitron'; margin-bottom: 8px; display: flex; align-items: center; gap: 5px; }
+        .benefit-row { display: flex; gap: 6px; align-items: center; margin-bottom: 6px; }
+        .benefit-row select { width: 44px; padding: 8px 4px; font-size: 12px; text-align: center; flex-shrink: 0; }
+        .benefit-row input { flex: 1; margin-bottom: 0; }
+        .benefit-row .del-benefit-btn { width: 28px; height: 28px; background: rgba(255,0,85,0.15); border: 1px solid var(--dev-color); color: var(--dev-color); border-radius: 6px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; font-size: 11px; }
+        .add-benefit-row-btn { background: rgba(0,234,255,0.08); border: 1px dashed var(--accent); color: var(--accent); width: 100%; padding: 7px; border-radius: 8px; font-size: 9px; font-family: 'Orbitron'; font-weight: 700; cursor: pointer; margin-top: 4px; }
+        .benefit-tag { display: inline-flex; align-items: center; gap: 4px; background: rgba(0,234,255,0.08); border: 1px solid rgba(0,234,255,0.2); border-radius: 16px; padding: 2px 8px; font-size: 8px; color: var(--accent); margin: 2px; }
+    </style>
+</head>
+<body class="android-optimized">
+
+<audio id="anime-music" loop><source src="" id="music-src" type="audio/mp3"></audio>
+<video id="bg-vid" loop playsinline muted class="bg-video"><source src="" id="video-src" type="video/mp4"></video>
+<div class="overlay-vignette"></div>
+
+<!-- PREMIUM WELCOME OVERLAY -->
+<div id="welcome-overlay">
+    <div class="floating-elements">
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+    </div>
+    <div class="premium-loader">
+        <div class="ring"></div>
+        <div class="ring"></div>
+        <div class="ring"></div>
+        <div class="core">U</div>
+    </div>
+    <div class="premium-title">UNO XALYA</div>
+    <div class="premium-subtitle"><span>UNO-STOREZZ</span> • EDITION</div>
+    <button class="enter-btn" onclick="enterSystem()">ENTER THE GRID</button>
+</div>
+
+<!-- LOGIN SCREEN -->
+<div id="login-screen" style="display:none; position: fixed; inset: 0; background: #000; z-index: 15000; align-items: center; justify-content: center; padding: 20px;">
+    <div class="modal-content" style="max-width: 300px;">
+        <div style="text-align: center; margin-bottom: 20px;">
+            <div style="width: 60px; height: 60px; background: linear-gradient(135deg, var(--accent), var(--dev-color)); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px;">
+                <i class="fa-solid fa-user-astronaut" style="font-size: 26px; color: #000;"></i>
+            </div>
+            <h2 style="font-family:'Orbitron'; color:var(--accent); font-size: 14px; letter-spacing: 2px;">WELCOME BACK</h2>
+            <p style="font-size: 9px; opacity: 0.5; margin-top: 4px;">MASUKKAN NAMA ANDA</p>
+        </div>
+        
+        <input type="text" id="user-login" placeholder="Username" style="text-align: center; margin-bottom: 12px;">
+        
+        <button class="buy-btn" onclick="performAuth()" style="margin-bottom: 8px;">MASUK</button>
+        
+        <div style="text-align: center; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--glass-border);">
+            <p style="font-size: 8px; opacity: 0.3; margin-bottom: 4px;">DEVELOPER ACCESS</p>
+            <input type="password" id="dev-key" placeholder="Secret Key" style="text-align: center; font-size: 9px; margin-bottom: 0;">
+        </div>
+    </div>
+</div>
+
+<!-- MAIN HEADER -->
+<header id="main-header" style="display:none;">
+    <div class="logo">UNO-STOREZZ</div>
+    <img src="" class="profile-btn" id="header-avatar" onclick="showPage('profile')">
+</header>
+
+<!-- MAIN APP CONTAINER -->
+<div class="app-container" id="main-app" style="display:none;">
+    <!-- HOME PAGE -->
+    <div id="page-home">
+        <div class="hero-card">
+            <div class="slider-wrapper" id="slider"></div>
+        </div>
+
+        <div class="gacha-box">
+            <div class="gacha-title"><i class="fa-solid fa-gift"></i> DAILY LUCK SPIN</div>
+            <p style="font-size: 10px; margin-bottom: 10px; opacity: 0.6;">Dapatkan hadiah premium dengan kesempatan langka!</p>
+            
+            <div class="prize-list" id="gacha-prize-list"></div>
+            
+            <button id="btn-gacha-action" class="buy-btn" onclick="spinGacha()">SPIN NOW</button>
+            <div id="gacha-result-container" style="margin-top: 8px;"></div>
+        </div>
+
+        <div class="category-grid">
+            <div class="cat-btn active" onclick="loadCategory('sewa', this)"><i class="fa-solid fa-robot"></i><span>Sewa</span></div>
+            <div class="cat-btn" onclick="loadCategory('premium', this)"><i class="fa-solid fa-crown"></i><span>Prem</span></div>
+            <div class="cat-btn" onclick="loadCategory('script', this)"><i class="fa-solid fa-code"></i><span>Code</span></div>
+            <div class="cat-btn" onclick="loadCategory('lainnya', this)"><i class="fa-solid fa-layer-group"></i><span>Misc</span></div>
+        </div>
+        <div id="catalog"></div>
+    </div>
+
+    <!-- PROFILE PAGE -->
+    <div id="page-profile" style="display:none;">
+        <div class="glass-card" style="text-align:center;">
+            <div style="position: relative; width: 80px; margin: 0 auto 12px;">
+                <img src="" id="profile-img-display" style="width:80px; height:80px; border-radius:20px; border:2.5px solid var(--accent); object-fit:cover;">
+                <label for="pfp-upload" style="position: absolute; bottom: -5px; right: -5px; background: var(--accent); width: 24px; height: 24px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #000; cursor: pointer;"><i class="fa-solid fa-pencil" style="font-size: 9px;"></i></label>
+                <input type="file" id="pfp-upload" style="display: none;" accept="image/*" onchange="updateProfilePhoto(this)">
+            </div>
+            
+            <div class="profile-name-section">
+                <h3 id="display-user-name" style="font-family:'Orbitron'; font-size:14px;">USER</h3>
+                <button class="edit-name-btn" onclick="openEditNameModal()">
+                    <i class="fa-solid fa-pen"></i> UBAH
+                </button>
+            </div>
+            
+            <div id="profile-julukan-container" style="margin-bottom: 8px;"></div>
+            <div id="name-tag-container" class="name-tag-container"></div>
+            <div id="status-cap-display" style="color:var(--accent); font-weight:800; font-size:10px; text-transform:uppercase; letter-spacing:2px; margin-bottom: 16px;">Member</div>
+
+            <!-- MY SUBSCRIPTION SECTION -->
+            <div id="my-subscription-section" class="my-subs-section"></div>
+
+            <p style="font-size:9px; color:var(--accent); font-family:'Orbitron'; text-align: left; margin-bottom: 8px;">CUSTOM THEME</p>
+            <div class="color-picker-container">
+                <div class="color-dot" style="background:#00eaff" onclick="updateAccent('#00eaff')"></div>
+                <div class="color-dot" style="background:#ff0055" onclick="updateAccent('#ff0055')"></div>
+                <div class="color-dot" style="background:#00ff88" onclick="updateAccent('#00ff88')"></div>
+                <div class="color-dot" style="background:#ffcc00" onclick="updateAccent('#ffcc00')"></div>
+                <div class="color-dot" style="background:#ae00ff" onclick="updateAccent('#ae00ff')"></div>
+                
+                <div style="display: flex; align-items: center; margin-top: 8px; width: 100%;">
+                    <input type="color" id="customColorPicker" style="width: 36px; height: 36px; border-radius: 6px; background: transparent; border: 1px solid var(--glass-border); cursor: pointer;" onchange="updateAccent(this.value)">
+                    <span style="margin-left: 8px; font-size: 10px; color: var(--accent);">Custom</span>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 16px 0;">
+                <a href="https://wa.me/6283856169422" target="_blank" style="background:var(--glass); padding:12px; border-radius:12px; border:1px solid var(--glass-border); color: #25d366;"><i class="fa-brands fa-whatsapp"></i></a>
+                <a href="https://t.me/Unodistrik13" target="_blank" style="background:var(--glass); padding:12px; border-radius:12px; border:1px solid var(--glass-border); color: #0088cc;"><i class="fa-brands fa-telegram"></i></a>
+                <a href="https://www.tiktok.com/@revaldi.bhakti?_r=1&_t=ZS-94YSUhEcDrw" target="_blank" style="background:var(--glass); padding:12px; border-radius:12px; border:1px solid var(--glass-border); color: #fff;"><i class="fa-brands fa-tiktok"></i></a>
+            </div>
+
+            <button id="dev-console-btn" onclick="openModal('devAuthModal')" style="display:none; background:var(--dev-color); color:white; border:none; padding:12px; border-radius:12px; width:100%; font-family:'Orbitron'; font-size:10px; font-weight:800; margin-bottom:8px;">CENTRAL COMMAND</button>
+            <button class="buy-btn" style="background:rgba(255,255,255,0.05); color:#fff;" onclick="logout()">TERMINATE</button>
+        </div>
+    </div>
+</div>
+
+<!-- PAYMENT MODAL -->
+<div id="paymentModal" class="modal">
+    <div class="modal-content" style="max-width:400px;">
+        <h2 style="font-family:'Orbitron'; color:var(--accent); font-size: 14px; text-align:center; margin-bottom:16px;">
+            <i class="fa-solid fa-credit-card"></i> KONFIRMASI PEMBAYARAN
+        </h2>
+        
+        <div class="payment-detail-card">
+            <div class="payment-info-row">
+                <span class="payment-info-label">Produk</span>
+                <span class="payment-info-value" id="pay-item-name">-</span>
+            </div>
+            <div class="payment-info-row">
+                <span class="payment-info-label">Harga</span>
+                <span class="payment-info-value highlight" id="pay-item-price">Rp 0</span>
+            </div>
+            <div class="payment-info-row">
+                <span class="payment-info-label">Pembeli</span>
+                <span class="payment-info-value" id="pay-buyer-name">-</span>
+            </div>
+        </div>
+        
+        <div class="bank-account">
+            <i class="fa-solid fa-building-columns" style="color:var(--gold); font-size: 18px; margin-bottom: 8px;"></i>
+            <div class="account-number" id="display-account-number">0823-2615-3257</div>
+            <div class="account-name" id="display-account-name">a.n UNO-STOREZZ</div>
+        </div>
+        
+        <div class="payment-method" id="payment-methods-display">
+            <i class="fa-brands fa-whatsapp"></i>
+            <div style="flex:1;">
+                <span class="method-name" id="payment-methods-text">DANA • GOPAY • OVO</span><br>
+                <span style="font-size:8px;">Transfer ke nomor di atas</span>
+            </div>
+        </div>
+        
+        <div class="upload-section" onclick="document.getElementById('payment-proof').click()">
+            <i class="fa-solid fa-cloud-upload-alt"></i>
+            <p>Klik untuk upload bukti transfer</p>
+            <p style="font-size:7px; opacity:0.5;">Format: JPG, PNG (Max 5MB)</p>
+            <div id="file-name-display" class="file-name"></div>
+        </div>
+        <input type="file" id="payment-proof" accept="image/*" onchange="handleFileUpload(this)">
+        
+        <div class="qr-code-section">
+            <img src="" id="qr-code-image" alt="QR Code">
+            <p style="font-size:7px; margin-top:4px; opacity:0.5;">Scan QR untuk pembayaran cepat</p>
+            <button onclick="downloadQR()" style="margin-top:8px; background:linear-gradient(135deg,var(--gold),#ffaa00); color:#000; border:none; padding:8px 18px; border-radius:8px; font-family:'Orbitron'; font-size:9px; font-weight:900; cursor:pointer; display:inline-flex; align-items:center; gap:6px; min-height:36px;">
+                <i class="fa-solid fa-download"></i> DOWNLOAD QR
+            </button>
+        </div>
+        
+        <button class="confirm-btn" onclick="sendPaymentConfirmation()">
+            <i class="fa-brands fa-whatsapp"></i> KIRIM KONFIRMASI
+        </button>
+        <button class="buy-btn" style="background:rgba(255,255,255,0.05); color:#fff; margin-top:8px;" onclick="closeModal('paymentModal')">BATAL</button>
+    </div>
+</div>
+
+<!-- EDIT NAME MODAL -->
+<div id="editNameModal" class="modal">
+    <div class="modal-content">
+        <h2 style="font-family:'Orbitron'; color:var(--accent); font-size: 13px; text-align:center; margin-bottom:16px;">
+            <i class="fa-solid fa-pen-to-square"></i> UBAH NAMA
+        </h2>
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+            <input type="text" id="new-name-input" placeholder="Masukkan nama baru..." maxlength="20">
+            <button class="save-product-btn" onclick="saveNewName()" style="background:var(--accent); color:#000;">
+                <i class="fa-solid fa-floppy-disk"></i> SIMPAN
+            </button>
+            <button class="buy-btn" style="background:rgba(255,255,255,0.05); color:#fff;" onclick="closeModal('editNameModal')">BATAL</button>
+        </div>
+    </div>
+</div>
+
+<!-- ADMIN DASHBOARD MODAL -->
+<div id="adminDashboardModal" class="modal">
+    <div class="modal-content" style="max-width:450px;">
+        <h2 style="font-family:'Orbitron'; color:var(--dev-color); font-size:13px; margin-bottom:12px;">COMMAND CENTER</h2>
+        <div class="tab-nav">
+            <div id="tab-btn-members" class="tab-item active" onclick="switchAdminTab('members')">MEMBERS</div>
+            <div id="tab-btn-prices" class="tab-item" onclick="switchAdminTab('prices')">PRICES</div>
+            <div id="tab-btn-gacha" class="tab-item" onclick="switchAdminTab('gacha')">GACHA</div>
+            <div id="tab-btn-payment" class="tab-item" onclick="switchAdminTab('payment')">PAYMENT</div>
+            <div id="tab-btn-subs" class="tab-item" onclick="switchAdminTab('subs')">SUBS</div>
+            <div id="tab-btn-config" class="tab-item" onclick="switchAdminTab('config')">MEDIA</div>
+        </div>
+        
+        <div id="adm-members" style="display:block;">
+            <div class="members-header">
+                <div class="members-header-icon"><i class="fa-solid fa-users"></i></div>
+                <div class="members-header-text">
+                    <h3 style="font-size:12px;">CREW DATABASE</h3>
+                    <p style="font-size:8px;">Manajemen member UNO-STOREZZ</p>
+                </div>
+            </div>
+            
+            <div class="members-stats">
+                <div class="stat-card">
+                    <i class="fa-solid fa-user-astronaut"></i>
+                    <div class="stat-value" id="total-members-count">0</div>
+                    <div class="stat-label" style="font-size:7px;">Total Crew</div>
+                </div>
+                <div class="stat-card">
+                    <i class="fa-solid fa-crown"></i>
+                    <div class="stat-value" id="total-developers-count">0</div>
+                    <div class="stat-label" style="font-size:7px;">Architect</div>
+                </div>
+                <div class="stat-card">
+                    <i class="fa-solid fa-star"></i>
+                    <div class="stat-value" id="total-regular-count">0</div>
+                    <div class="stat-label" style="font-size:7px;">Member</div>
+                </div>
+            </div>
+            
+            <div id="member-list-container" class="members-list"></div>
+            
+            <div class="member-footer-note" style="font-size:7px;">
+                <i class="fa-solid fa-shield-halved"></i> Developer bisa memberi julukan khusus untuk member <i class="fa-solid fa-shield-halved"></i>
+            </div>
+        </div>
+
+        <div id="adm-prices" style="display:none;">
+            <div class="price-header">
+                <i class="fa-solid fa-tags"></i>
+                <span style="font-size:10px;">PRODUCT PRICE MANAGEMENT</span>
+            </div>
+            
+            <div class="category-selector">
+                <select id="sel-cat-add" onchange="renderAdminProductList()">
+                    <option value="sewa">🤖 SEWA BOT</option>
+                    <option value="premium">👑 PREMIUM</option>
+                    <option value="script">📜 SCRIPT</option>
+                    <option value="lainnya">📦 LAINNYA</option>
+                </select>
+            </div>
+            
+            <div id="admin-product-list" class="product-grid"></div>
+            
+            <div class="add-product-form">
+                <div class="form-title">
+                    <i class="fa-solid fa-circle-plus"></i>
+                    <span>TAMBAH PRODUK BARU</span>
+                </div>
+                
+                <div class="input-group">
+                    <i class="fa-solid fa-box"></i>
+                    <input type="text" id="new-item-name" placeholder="Nama Produk">
+                </div>
+                
+                <div class="input-group">
+                    <i class="fa-solid fa-coins"></i>
+                    <input type="text" id="new-item-price" placeholder="Harga (contoh: 50000)">
+                </div>
+
+                <div class="benefit-form-box">
+                    <div class="benefit-form-title"><i class="fa-solid fa-star"></i> BENEFIT PRODUK (opsional)</div>
+                    <div id="benefit-rows-container"></div>
+                    <button class="add-benefit-row-btn" onclick="addBenefitRow()">
+                        <i class="fa-solid fa-plus"></i> TAMBAH BENEFIT
+                    </button>
+                </div>
+                
+                <button class="save-product-btn" onclick="addNewItem()" style="margin-top:10px;">
+                    <i class="fa-solid fa-floppy-disk"></i> SIMPAN PRODUK
+                </button>
+            </div>
+        </div>
+
+        <!-- GACHA MANAGEMENT TAB -->
+        <div id="adm-gacha" style="display:none;">
+            <div class="gacha-header">
+                <i class="fa-solid fa-dice"></i>
+                <span style="font-size:10px;">GACHA PRIZE MANAGEMENT</span>
+            </div>
+            
+            <div class="gacha-prize-grid" id="gacha-prize-list-admin"></div>
+            
+            <button class="delete-all-gacha-btn" onclick="deleteAllGachaPrizes()">
+                <i class="fa-solid fa-trash-can"></i> HAPUS SEMUA HADIAH GACHA
+            </button>
+            
+            <div class="add-gacha-form">
+                <div class="form-title">
+                    <i class="fa-solid fa-circle-plus"></i>
+                    <span>TAMBAH HADIAH GACHA</span>
+                </div>
+                
+                <div class="input-group">
+                    <i class="fa-solid fa-gift"></i>
+                    <input type="text" id="new-gacha-name" placeholder="Nama Hadiah">
+                </div>
+                
+                <div class="category-selector" style="margin-bottom: 8px;">
+                    <select id="new-gacha-type">
+                        <option value="premium">👑 PREMIUM</option>
+                        <option value="sewa">🤖 SEWA BOT</option>
+                    </select>
+                </div>
+                
+                <div class="input-group">
+                    <i class="fa-solid fa-calendar"></i>
+                    <input type="number" id="new-gacha-days" placeholder="Durasi (hari)" min="1" max="365" value="1">
+                </div>
+                
+                <div class="weight-slider">
+                    <i class="fa-solid fa-weight-scale" style="color:var(--gold);"></i>
+                    <input type="range" id="new-gacha-weight" min="1" max="100" value="10" oninput="updateWeightValue(this.value)">
+                    <span class="weight-value" id="weight-value">10%</span>
+                </div>
+                
+                <div class="total-weight" id="total-weight-display">
+                    Total Persentase: <span id="total-weight">0</span>%
+                </div>
+                
+                <button class="save-product-btn" onclick="addGachaPrize()" style="background:var(--gold); color:#000;">
+                    <i class="fa-solid fa-floppy-disk"></i> TAMBAH HADIAH
+                </button>
+            </div>
+        </div>
+
+        <!-- PAYMENT MANAGEMENT TAB -->
+        <div id="adm-payment" style="display:none;">
+            <div class="payment-header">
+                <i class="fa-solid fa-credit-card"></i>
+                <span style="font-size:10px;">PAYMENT SETTINGS</span>
+            </div>
+            
+            <div class="payment-preview">
+                <div class="payment-preview-title">
+                    <i class="fa-solid fa-eye"></i> PREVIEW PEMBAYARAN
+                </div>
+                <div class="payment-preview-content">
+                    <div class="payment-preview-row">
+                        <span class="payment-preview-label">Nomor Rekening</span>
+                        <span class="payment-preview-value" id="preview-account-number">0823-2615-3257</span>
+                    </div>
+                    <div class="payment-preview-row">
+                        <span class="payment-preview-label">Nama Rekening</span>
+                        <span class="payment-preview-value" id="preview-account-name">a.n UNO-STOREZZ</span>
+                    </div>
+                    <div class="payment-preview-row">
+                        <span class="payment-preview-label">Metode Pembayaran</span>
+                        <span class="payment-preview-value" id="preview-payment-methods">DANA • GOPAY • OVO</span>
+                    </div>
+                    <div class="payment-preview-qr" id="preview-qr-container">
+                        <img src="" id="preview-qr-image" alt="QR Code Preview">
+                        <button onclick="downloadQR()" style="margin-top:8px; background:linear-gradient(135deg,var(--gold),#ffaa00); color:#000; border:none; padding:7px 14px; border-radius:8px; font-family:'Orbitron'; font-size:8px; font-weight:900; cursor:pointer; display:inline-flex; align-items:center; gap:5px; min-height:32px;">
+                            <i class="fa-solid fa-download"></i> DOWNLOAD QR
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="payment-edit-form">
+                <div class="payment-edit-title">
+                    <i class="fa-solid fa-pen"></i>
+                    <span>UBAH DATA PEMBAYARAN</span>
+                </div>
+                
+                <div class="payment-input-group">
+                    <i class="fa-solid fa-phone"></i>
+                    <input type="text" id="payment-account-number" placeholder="Nomor Rekening" value="0823-2615-3257">
+                </div>
+                
+                <div class="payment-input-group">
+                    <i class="fa-solid fa-user"></i>
+                    <input type="text" id="payment-account-name" placeholder="Nama Rekening" value="a.n UNO-STOREZZ">
+                </div>
+                
+                <div class="payment-methods-container">
+                    <div class="payment-methods-title">
+                        <i class="fa-solid fa-check-circle"></i> PILIH METODE PEMBAYARAN
+                    </div>
+                    <div class="payment-checkbox-group">
+                        <label class="payment-checkbox dana">
+                            <input type="checkbox" id="payment-dana" checked> 
+                            <i class="fa-brands fa-whatsapp"></i>
+                            <span>DANA</span>
+                        </label>
+                        <label class="payment-checkbox gopay">
+                            <input type="checkbox" id="payment-gopay" checked> 
+                            <i class="fa-brands fa-google-pay"></i>
+                            <span>GOPAY</span>
+                        </label>
+                        <label class="payment-checkbox ovo">
+                            <input type="checkbox" id="payment-ovo" checked> 
+                            <i class="fa-brands fa-amazon-pay"></i>
+                            <span>OVO</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="qr-upload-section" onclick="document.getElementById('qr-upload').click()">
+                    <i class="fa-solid fa-qrcode"></i>
+                    <p>Klik untuk upload QR Code</p>
+                    <p style="font-size:7px; opacity:0.5;">Format: JPG, PNG (Max 2MB)</p>
+                    <div id="qr-file-name" class="file-name"></div>
+                </div>
+                <input type="file" id="qr-upload" accept="image/*" onchange="handleQRUpload(this)">
+                
+                <button class="save-payment-btn" onclick="savePaymentSettings()">
+                    <i class="fa-solid fa-floppy-disk"></i> SIMPAN DATA PEMBAYARAN
+                </button>
+            </div>
+        </div>
+
+        <!-- SUBSCRIPTION MANAGEMENT TAB -->
+        <div id="adm-subs" style="display:none;">
+            <div class="price-header">
+                <i class="fa-solid fa-clock"></i>
+                <span style="font-size:10px;">SUBSCRIPTION MANAGEMENT</span>
+            </div>
+            
+            <div class="members-stats" style="margin-bottom:12px;">
+                <div class="stat-card" onclick="filterSubsByType('all')" style="cursor:pointer;">
+                    <i class="fa-solid fa-layer-group"></i>
+                    <div class="stat-value" id="total-subs-count">0</div>
+                    <div class="stat-label" style="font-size:7px;">Total Aktif</div>
+                </div>
+                <div class="stat-card" onclick="filterSubsByType('premium')" style="cursor:pointer;">
+                    <i class="fa-solid fa-crown" style="color:var(--gold);"></i>
+                    <div class="stat-value" id="premium-subs-count">0</div>
+                    <div class="stat-label" style="font-size:7px;">Premium</div>
+                </div>
+                <div class="stat-card" onclick="filterSubsByType('sewa')" style="cursor:pointer;">
+                    <i class="fa-solid fa-robot" style="color:var(--accent);"></i>
+                    <div class="stat-value" id="sewa-subs-count">0</div>
+                    <div class="stat-label" style="font-size:7px;">Sewa</div>
+                </div>
+            </div>
+            
+            <div class="filter-tabs">
+                <div class="filter-tab active" onclick="filterSubsByStatus('all')" id="filter-all">SEMUA</div>
+                <div class="filter-tab" onclick="filterSubsByStatus('active')" id="filter-active">AKTIF</div>
+                <div class="filter-tab" onclick="filterSubsByStatus('expiring')" id="filter-expiring">HAMPIR HABIS</div>
+                <div class="filter-tab" onclick="filterSubsByStatus('expired')" id="filter-expired">KADALUARSA</div>
+            </div>
+            
+            <div class="add-product-form" style="margin-bottom:12px;">
+                <div class="form-title">
+                    <i class="fa-solid fa-circle-plus"></i>
+                    <span>TAMBAH SUBSCRIPTION BARU</span>
+                </div>
+                
+                <select id="sub-member-select" style="margin-bottom:8px;">
+                    <option value="">-- Pilih Member --</option>
+                </select>
+                
+                <div style="display:flex; gap:8px; margin-bottom:8px;">
+                    <select id="sub-type-select" style="flex:2;">
+                        <option value="premium">👑 PREMIUM</option>
+                        <option value="sewa">🤖 SEWA BOT</option>
+                    </select>
+                    
+                    <div style="flex:1; position:relative;">
+                        <i class="fa-solid fa-calendar" style="position:absolute; left:8px; top:50%; transform:translateY(-50%); color:var(--gold); font-size:9px;"></i>
+                        <input type="number" id="sub-days" min="1" max="365" value="30" placeholder="Hari" style="padding-left:28px;">
+                    </div>
+                </div>
+                
+                <div style="display:flex; gap:4px; margin-bottom:8px; flex-wrap:wrap;">
+                    <span class="quick-add-badge" onclick="document.getElementById('sub-days').value='7'">7</span>
+                    <span class="quick-add-badge" onclick="document.getElementById('sub-days').value='14'">14</span>
+                    <span class="quick-add-badge" onclick="document.getElementById('sub-days').value='30'">30</span>
+                    <span class="quick-add-badge" onclick="document.getElementById('sub-days').value='60'">60</span>
+                    <span class="quick-add-badge" onclick="document.getElementById('sub-days').value='90'">90</span>
+                </div>
+                
+                <button class="save-product-btn" onclick="addNewSubscription()" style="background:var(--gold);">
+                    <i class="fa-solid fa-floppy-disk"></i> TAMBAH SUBSCRIPTION
+                </button>
+            </div>
+            
+            <div id="subscription-list" class="members-list" style="max-height:300px;"></div>
+        </div>
+
+        <div id="adm-config" style="display:none;">
+            <p style="font-size:9px; color:var(--accent); margin-bottom:4px;">SYSTEM MEDIA</p>
+            <input type="text" id="cfg-video" placeholder="Video Link (MP4)">
+            <input type="text" id="cfg-music" placeholder="Music Link (MP3)">
+            
+            <p style="font-size:9px; color:var(--accent); margin:8px 0 4px;">BANNER SLIDER MANAGER</p>
+            <div id="admin-banner-list" style="max-height:90px; overflow-y:auto; margin-bottom:8px; background: rgba(255,255,255,0.02); padding: 4px; border-radius: 8px;"></div>
+            <input type="text" id="new-banner-link" placeholder="New Banner Image URL">
+            <button class="buy-btn" onclick="addNewBanner()" style="background:var(--gold); color:#000; margin-bottom:8px;">ADD BANNER</button>
+            
+            <button class="buy-btn" onclick="saveConfig()" style="background:var(--dev-color); color:#fff">UPDATE SYSTEM</button>
+        </div>
+
+        <button class="buy-btn" style="background:rgba(255,255,255,0.05); color:#fff; margin-top:12px;" onclick="closeModal('adminDashboardModal')">CLOSE</button>
+    </div>
+</div>
+
+<!-- JULUKAN MODAL -->
+<div id="julukanModal" class="modal">
+    <div class="modal-content">
+        <h2 style="font-family:'Orbitron'; color:var(--gold); font-size: 13px; text-align:center; margin-bottom:16px;">
+            <i class="fa-solid fa-tag"></i> BERI JULUKAN
+        </h2>
+        <div class="julukan-input-modal">
+            <input type="text" id="julukan-input" placeholder="Masukkan julukan keren..." maxlength="30">
+            
+            <div class="julukan-suggestions" style="display:flex; flex-wrap:wrap; gap:4px; margin:8px 0;">
+                <span class="quick-add-badge" onclick="selectJulukanSuggestion('The Legend')">The Legend</span>
+                <span class="quick-add-badge" onclick="selectJulukanSuggestion('Shadow Master')">Shadow</span>
+                <span class="quick-add-badge" onclick="selectJulukanSuggestion('Cyber Ninja')">Ninja</span>
+                <span class="quick-add-badge" onclick="selectJulukanSuggestion('Dark Knight')">Knight</span>
+                <span class="quick-add-badge" onclick="selectJulukanSuggestion('Soul Reaper')">Reaper</span>
+                <span class="quick-add-badge" onclick="selectJulukanSuggestion('Neon Warrior')">Neon</span>
+                <span class="quick-add-badge" onclick="selectJulukanSuggestion('Phantom')">Phantom</span>
+                <span class="quick-add-badge" onclick="selectJulukanSuggestion('Viper')">Viper</span>
+            </div>
+            
+            <button class="save-product-btn" onclick="saveJulukan()" style="background:var(--gold); color:#000; margin-top:8px;">
+                <i class="fa-solid fa-tag"></i> SIMPAN JULUKAN
+            </button>
+            <button class="buy-btn" style="background:rgba(255,255,255,0.05); color:#fff; margin-top:8px;" onclick="closeModal('julukanModal')">BATAL</button>
+        </div>
+    </div>
+</div>
+
+<!-- SUBSCRIPTION EDIT MODAL -->
+<div id="editSubModal" class="modal" style="display:none;">
+    <div class="modal-content" style="max-width:320px;">
+        <h2 style="font-family:'Orbitron'; color:var(--gold); font-size:13px; margin-bottom:12px;">
+            <i class="fa-solid fa-pen-to-square"></i> EDIT SUBSCRIPTION
+        </h2>
+        
+        <div style="margin-bottom:12px; padding:8px; background:rgba(255,255,255,0.03); border-radius:8px;" id="edit-sub-member-info">
+            <!-- Akan diisi oleh JavaScript -->
+        </div>
+        
+        <div class="input-group">
+            <i class="fa-solid fa-calendar-plus"></i>
+            <input type="number" id="edit-days" min="1" max="365" value="30" placeholder="Durasi (hari)">
+        </div>
+        
+        <div class="input-group">
+            <i class="fa-regular fa-calendar-check"></i>
+            <input type="date" id="edit-start-date" placeholder="Tanggal Mulai">
+        </div>
+        
+        <div style="display:flex; gap:8px; margin-top:16px;">
+            <button class="save-product-btn" onclick="saveSubscriptionEdit()" style="flex:2; background:var(--gold);">
+                <i class="fa-solid fa-floppy-disk"></i> SIMPAN
+            </button>
+            <button class="buy-btn" onclick="closeEditSubModal()" style="flex:1; background:rgba(255,255,255,0.05);">
+                BATAL
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- DEV AUTH MODAL -->
+<div id="devAuthModal" class="modal">
+    <div class="modal-content" style="max-width:280px;">
+        <input type="password" id="dev-pass-input" placeholder="PIN...">
+        <button class="buy-btn" onclick="verifyDevAccess()">UNLOCK</button>
+    </div>
+</div>
+
+<!-- DOCK NAVIGATION -->
+<nav class="dock-nav" id="main-nav" style="display:none;">
+    <div class="dock-item active" id="btn-home" onclick="showPage('home')"><i class="fa-solid fa-ghost"></i>STORE</div>
+    <div class="dock-item" id="btn-profile" onclick="showPage('profile')"><i class="fa-solid fa-user-astronaut"></i>CORE</div>
+</nav>
+
+<script>
+    // ==================== KODE ASLI ANDA (TIDAK BERUBAH) ====================
+    let config = JSON.parse(localStorage.getItem('uno_cfg')) || {
+        accent: "#00eaff",
+        bgVideo: "https://raw.githubusercontent.com/RahmadPasker/dat4/main/uploads/alip-clutch-1773044461035.mp4",
+        bgMusic: "https://files.catbox.moe/2n6pxr.mp3",
+        banners: ["https://raw.githubusercontent.com/RahmadPasker/dat4/main/uploads/alip-clutch-1773045593104.jpg"],
+        prices: { sewa: [], premium: [], script: [], lainnya: [] },
+        members: [],
+        gachaPrizes: [
+            { name: "Free Prem 2 Hari", type: "premium", days: 2, weight: 35, class: "common" },
+            { name: "Free Sewa 3 Hari", type: "sewa", days: 3, weight: 25, class: "common" },
+            { name: "Free Prem 7 Hari", type: "premium", days: 7, weight: 15, class: "rare" },
+            { name: "Free Sewa 8 Hari", type: "sewa", days: 8, weight: 12, class: "rare" },
+            { name: "Free Prem 10 Hari", type: "premium", days: 10, weight: 7, class: "epic" },
+            { name: "Free Sewa 14 Hari", type: "sewa", days: 14, weight: 4, class: "epic" },
+            { name: "Free Prem 15 Hari", type: "premium", days: 15, weight: 2, class: "legendary" }
+        ],
+        payment: {
+            accountNumber: "0823-2615-3257",
+            accountName: "a.n UNO-STOREZZ",
+            qrCode: "https://raw.githubusercontent.com/RahmadPasker/dat2/main/uploads/alip-clutch-1773085922051.jpg",
+            methods: {
+                dana: true,
+                gopay: true,
+                ovo: true
+            }
+        }
+    };
+
+    if (!config.members) config.members = [];
+    if (!config.prices) config.prices = { sewa: [], premium: [], script: [], lainnya: [] };
+    if (!config.gachaPrizes) config.gachaPrizes = [];
+    if (!config.payment) {
+        config.payment = {
+            accountNumber: "0823-2615-3257",
+            accountName: "a.n UNO-STOREZZ",
+            qrCode: "https://raw.githubusercontent.com/RahmadPasker/dat2/main/uploads/alip-clutch-1773085922051.jpg",
+            methods: {
+                dana: true,
+                gopay: true,
+                ovo: true
+            }
+        };
+    }
+    if (!config.payment.methods) {
+        config.payment.methods = {
+            dana: true,
+            gopay: true,
+            ovo: true
+        };
+    }
+
+    let currentUser = null;
+    let slideIdx = 0;
+    let tempProd = "", tempPrice = "";
+    let selectedMemberForJulukan = null;
+    let uploadedFile = null;
+    let uploadedQRFile = null;
+    let slideInterval;
+    let lastGachaResult = null;
+    
+    let currentSubFilter = 'all';
+    let currentSubType = 'all';
+    let currentEditMember = null;
+    let currentEditSubIndex = null;
+
+    // ==================== ANDROID OPTIMIZATIONS (ASLI) ====================
+    document.addEventListener('touchstart', function(e) {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA') {
+            document.body.style.zoom = '1';
+        }
+    }, { passive: true });
+
+    document.addEventListener('touchstart', function(e) {
+        if (e.target.closest('button') || e.target.closest('.cat-btn') || e.target.closest('.dock-item')) {
+            e.target.style.opacity = '0.7';
+        }
+    }, { passive: true });
+
+    document.addEventListener('touchend', function(e) {
+        if (e.target.closest('button') || e.target.closest('.cat-btn') || e.target.closest('.dock-item')) {
+            e.target.style.opacity = '1';
+        }
+    }, { passive: true });
+
+    // ==================== AUTO-SAVE FUNCTIONS (ASLI) ====================
+    function autoSaveAll() {
+        saveLocal();
+        console.log('✅ Auto-save completed at', new Date().toLocaleTimeString());
+    }
+
+    setInterval(autoSaveAll, 30000);
+
+    window.addEventListener('beforeunload', function() {
+        saveLocal();
+    });
+
+    // ==================== FUNGSI UPDATE TAMPILAN PUBLIK (ASLI) ====================
+    function updatePublicDisplay() {
+        const video = document.getElementById('bg-vid');
+        const videoSrc = document.getElementById('video-src');
+        if (config.bgVideo && videoSrc) {
+            videoSrc.src = config.bgVideo;
+            if (video) {
+                video.load();
+                video.play().catch(() => {});
+            }
+        }
+        
+        const audio = document.getElementById('anime-music');
+        const musicSrc = document.getElementById('music-src');
+        if (config.bgMusic && musicSrc) {
+            musicSrc.src = config.bgMusic;
+            if (audio) {
+                audio.load();
+                audio.play().catch(() => {});
+            }
+        }
+        
+        renderSlider();
+        renderGachaPrizeList();
+        loadPaymentSettings();
+        
+        const activeCat = document.querySelector('.cat-btn.active span')?.innerText.toLowerCase() || 'sewa';
+        loadCategory(activeCat);
+        
+        if (currentUser) {
+            syncUI();
+        }
+    }
+
+    // ==================== AUTO SAVE MEMBER BARU (ASLI) ====================
+    function autoSaveNewMember(userData) {
+        const existingMember = config.members.find(m => m.name === userData.name);
+        
+        if (!existingMember) {
+            const newMember = {
+                name: userData.name,
+                role: userData.role || 'member',
+                subs: [],
+                joinDate: new Date().toLocaleDateString('id-ID'),
+                lastActive: new Date().toLocaleString('id-ID'),
+                totalSpent: 0,
+                julukan: userData.role === 'developer' ? 'The Architect' : ''
+            };
+            
+            if (!config.members) config.members = [];
+            config.members.push(newMember);
+            saveLocal();
+            
+            // Sync member baru ke cloud agar admin bisa lihat
+            syncUserToCloud(userData);
+            
+            console.log(`✅ Member baru terdeteksi: ${userData.name}`);
+            
+            if (document.getElementById('adminDashboardModal') && 
+                document.getElementById('adminDashboardModal').style.display === 'flex') {
+                renderMemberList();
+                renderSubscriptionList();
+            }
+        } else {
+            existingMember.lastActive = new Date().toLocaleString('id-ID');
+            saveLocal();
+            // Update lastActive ke cloud
+            syncUserToCloud(userData);
+        }
+    }
+
+    // ==================== FUNGSI MY SUBSCRIPTION UNTUK MEMBER (ASLI) ====================
+    function renderMySubscription() {
+        const container = document.getElementById('my-subscription-section');
+        if (!container || !currentUser) return;
+        
+        const memberData = config.members.find(m => m.name === currentUser.name);
+        
+        const legendHTML = `
+            <div class="my-subs-legend">
+                <div class="legend-item">
+                    <div class="legend-color gold"></div>
+                    <span class="legend-text">Premium</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color cyan"></div>
+                    <span class="legend-text">Sewa Bot</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color green"></div>
+                    <span class="legend-text">Aktif</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color orange"></div>
+                    <span class="legend-text">Hampir Habis</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color red"></div>
+                    <span class="legend-text">Expired</span>
+                </div>
+            </div>
+        `;
+        
+        if (!memberData || !memberData.subs || memberData.subs.length === 0) {
+            container.innerHTML = `
+                <div class="my-subs-title">
+                    <i class="fa-solid fa-clock"></i> MY SUBSCRIPTION
+                </div>
+                ${legendHTML}
+                <div class="my-sub-empty">
+                    <i class="fa-regular fa-circle-xmark"></i>
+                    <p>Kamu belum memiliki subscription aktif</p>
+                    <p style="font-size:8px; margin-top:5px;">Silakan melakukan pembelian di halaman STORE</p>
+                </div>
+                <div class="my-sub-info-text">
+                    <i class="fa-solid fa-info-circle"></i> Premium: <span style="color:var(--gold)">Kuning</span> | Sewa: <span style="color:var(--accent)">Biru</span> | Aktif: <span style="color:#00ff00">Hijau</span> | Hampir Habis: <span style="color:#ffaa00">Oranye (Berkedip)</span> | Expired: <span style="color:#ff5555">Merah</span>
+                </div>
+            `;
+            return;
+        }
+        
+        const now = new Date();
+        const activeSubs = memberData.subs.filter(s => new Date(s.expiry) > now);
+        const expiredSubs = memberData.subs.filter(s => new Date(s.expiry) <= now);
+        
+        let html = `
+            <div class="my-subs-title">
+                <i class="fa-solid fa-clock"></i> MY SUBSCRIPTION
+                ${activeSubs.length > 0 ? `<span style="margin-left:auto; font-size:8px; background:rgba(0,255,0,0.1); padding:2px 6px; border-radius:10px;">${activeSubs.length} Aktif</span>` : ''}
+            </div>
+            ${legendHTML}
+        `;
+        
+        if (activeSubs.length > 0) {
+            activeSubs.forEach(sub => {
+                const expiryDate = new Date(sub.expiry);
+                const startDate = new Date(sub.start);
+                const daysLeft = Math.ceil((expiryDate - now) / (1000 * 60 * 60 * 24));
+                const totalDays = Math.ceil((expiryDate - startDate) / (1000 * 60 * 60 * 24));
+                const progress = ((totalDays - daysLeft) / totalDays) * 100;
+                
+                let status = 'status-active';
+                let statusText = 'AKTIF';
+                
+                if (daysLeft <= 3 && daysLeft > 0) {
+                    status = 'status-expiring';
+                    statusText = 'HAMPIR HABIS';
+                } else if (daysLeft <= 0) {
+                    status = 'status-expired';
+                    statusText = 'EXPIRED';
+                }
+                
+                const warningMessage = daysLeft <= 3 && daysLeft > 0 ? 
+                    `<div style="font-size:7px; color:#ffaa00; margin-top:4px; text-align:center;">
+                        <i class="fa-solid fa-exclamation-triangle"></i> Segera perpanjang! Sisa ${daysLeft} hari lagi
+                    </div>` : '';
+                
+                html += `
+                    <div class="my-sub-card ${sub.type}">
+                        <div class="my-sub-header">
+                            <div class="my-sub-icon ${sub.type}">
+                                <i class="fa-solid ${sub.type === 'premium' ? 'fa-crown' : 'fa-robot'}"></i>
+                            </div>
+                            <div class="my-sub-info">
+                                <div class="my-sub-type">${sub.type === 'premium' ? 'PREMIUM' : 'SEWA BOT'}</div>
+                                <div class="my-sub-date">
+                                    <i class="fa-regular fa-calendar"></i> ${sub.start} - ${sub.expiry}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="my-sub-stats">
+                            <div class="my-sub-days">
+                                ${daysLeft > 0 ? daysLeft : 0} <small>hari lagi</small>
+                            </div>
+                            <div class="my-sub-status ${status}">
+                                ${statusText}
+                            </div>
+                        </div>
+                        
+                        <div class="my-sub-progress">
+                            <div class="my-sub-progress-bar">
+                                <div class="my-sub-progress-fill" style="width: ${progress}%"></div>
+                            </div>
+                            <div class="my-sub-progress-text">
+                                <span>Mulai: ${sub.start}</span>
+                                <span>Berakhir: ${sub.expiry}</span>
+                            </div>
+                        </div>
+                        ${warningMessage}
+                    </div>
+                `;
+            });
+        }
+        
+        if (expiredSubs.length > 0 && activeSubs.length === 0) {
+            expiredSubs.forEach(sub => {
+                html += `
+                    <div class="my-sub-card ${sub.type}" style="opacity:0.5;">
+                        <div class="my-sub-header">
+                            <div class="my-sub-icon ${sub.type}">
+                                <i class="fa-solid ${sub.type === 'premium' ? 'fa-crown' : 'fa-robot'}"></i>
+                            </div>
+                            <div class="my-sub-info">
+                                <div class="my-sub-type">${sub.type === 'premium' ? 'PREMIUM' : 'SEWA BOT'}</div>
+                                <div class="my-sub-date">
+                                    <i class="fa-regular fa-calendar"></i> ${sub.start} - ${sub.expiry}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="my-sub-stats">
+                            <div class="my-sub-days">
+                                0 <small>hari</small>
+                            </div>
+                            <div class="my-sub-status status-expired">
+                                EXPIRED
+                            </div>
+                        </div>
+                        <div style="font-size:7px; color:#ff5555; margin-top:4px; text-align:center;">
+                            <i class="fa-solid fa-circle-exclamation"></i> Masa aktif telah berakhir
+                        </div>
+                    </div>
+                `;
+            });
+        }
+        
+        html += `
+            <div class="my-sub-info-text">
+                <i class="fa-solid fa-info-circle"></i> 
+                <span style="color:var(--gold)">Premium</span> • 
+                <span style="color:var(--accent)">Sewa</span> • 
+                <span style="color:#00ff00">Aktif</span> • 
+                <span style="color:#ffaa00">Hampir Habis <span style="font-size:6px;">(≤3 hari)</span></span> • 
+                <span style="color:#ff5555">Expired</span>
+            </div>
+        `;
+        
+        container.innerHTML = html;
+    }
+
+    // ==================== PAYMENT MANAGEMENT FUNCTIONS (ASLI) ====================
+    function loadPaymentSettings() {
+        const accountNumberEl = document.getElementById('display-account-number');
+        const accountNameEl = document.getElementById('display-account-name');
+        const qrImageEl = document.getElementById('qr-code-image');
+        const methodsTextEl = document.getElementById('payment-methods-text');
+        
+        if (accountNumberEl) accountNumberEl.innerText = config.payment.accountNumber || "0823-2615-3257";
+        if (accountNameEl) accountNameEl.innerText = config.payment.accountName || "a.n UNO-STOREZZ";
+        if (qrImageEl) qrImageEl.src = config.payment.qrCode || "https://raw.githubusercontent.com/RahmadPasker/dat2/main/uploads/alip-clutch-1773085922051.jpg";
+        
+        if (methodsTextEl) {
+            const methods = [];
+            if (config.payment.methods.dana) methods.push("DANA");
+            if (config.payment.methods.gopay) methods.push("GOPAY");
+            if (config.payment.methods.ovo) methods.push("OVO");
+            methodsTextEl.innerText = methods.join(" • ") || "DANA";
+        }
+        
+        const previewNumberEl = document.getElementById('preview-account-number');
+        const previewNameEl = document.getElementById('preview-account-name');
+        const previewMethodsEl = document.getElementById('preview-payment-methods');
+        const previewQrEl = document.getElementById('preview-qr-image');
+        const paymentNumberInput = document.getElementById('payment-account-number');
+        const paymentNameInput = document.getElementById('payment-account-name');
+        
+        const danaCheckbox = document.getElementById('payment-dana');
+        const gopayCheckbox = document.getElementById('payment-gopay');
+        const ovoCheckbox = document.getElementById('payment-ovo');
+        
+        if (previewNumberEl) previewNumberEl.innerText = config.payment.accountNumber || "0823-2615-3257";
+        if (previewNameEl) previewNameEl.innerText = config.payment.accountName || "a.n UNO-STOREZZ";
+        if (previewMethodsEl) {
+            const methods = [];
+            if (config.payment.methods.dana) methods.push("DANA");
+            if (config.payment.methods.gopay) methods.push("GOPAY");
+            if (config.payment.methods.ovo) methods.push("OVO");
+            previewMethodsEl.innerText = methods.join(" • ") || "DANA";
+        }
+        if (previewQrEl) previewQrEl.src = config.payment.qrCode || "https://raw.githubusercontent.com/RahmadPasker/dat2/main/uploads/alip-clutch-1773085922051.jpg";
+        if (paymentNumberInput) paymentNumberInput.value = config.payment.accountNumber || "0823-2615-3257";
+        if (paymentNameInput) paymentNameInput.value = config.payment.accountName || "a.n UNO-STOREZZ";
+        
+        if (danaCheckbox) danaCheckbox.checked = config.payment.methods.dana !== false;
+        if (gopayCheckbox) gopayCheckbox.checked = config.payment.methods.gopay !== false;
+        if (ovoCheckbox) ovoCheckbox.checked = config.payment.methods.ovo !== false;
+    }
+    
+    function handleQRUpload(input) {
+        if (input.files && input.files[0]) {
+            const file = input.files[0];
+            
+            if (file.size > 2 * 1024 * 1024) {
+                alert("⚠️ File terlalu besar! Maksimal 2MB.");
+                return;
+            }
+            
+            if (!file.type.match('image.*')) {
+                alert("⚠️ Hanya file gambar yang diperbolehkan!");
+                return;
+            }
+            
+            uploadedQRFile = file;
+            const fileNameDisplay = document.getElementById('qr-file-name');
+            if (fileNameDisplay) {
+                fileNameDisplay.innerHTML = `<i class="fa-solid fa-check-circle" style="color:var(--gold);"></i> ${file.name}`;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const previewQrEl = document.getElementById('preview-qr-image');
+                if (previewQrEl) previewQrEl.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+    
+    function savePaymentSettings() {
+        const accountNumberInput = document.getElementById('payment-account-number');
+        const accountNameInput = document.getElementById('payment-account-name');
+        const danaCheckbox = document.getElementById('payment-dana');
+        const gopayCheckbox = document.getElementById('payment-gopay');
+        const ovoCheckbox = document.getElementById('payment-ovo');
+        
+        const newAccountNumber = accountNumberInput ? accountNumberInput.value.trim() : config.payment.accountNumber;
+        const newAccountName = accountNameInput ? accountNameInput.value.trim() : config.payment.accountName;
+        
+        if (!newAccountNumber) {
+            alert("⚠️ Nomor rekening tidak boleh kosong!");
+            return;
+        }
+        
+        if (!newAccountName) {
+            alert("⚠️ Nama rekening tidak boleh kosong!");
+            return;
+        }
+        
+        const danaChecked = danaCheckbox ? danaCheckbox.checked : false;
+        const gopayChecked = gopayCheckbox ? gopayCheckbox.checked : false;
+        const ovoChecked = ovoCheckbox ? ovoCheckbox.checked : false;
+        
+        if (!danaChecked && !gopayChecked && !ovoChecked) {
+            alert("⚠️ Pilih minimal satu metode pembayaran!");
+            return;
+        }
+        
+        config.payment.accountNumber = newAccountNumber;
+        config.payment.accountName = newAccountName;
+        config.payment.methods = {
+            dana: danaChecked,
+            gopay: gopayChecked,
+            ovo: ovoChecked
+        };
+        
+        if (uploadedQRFile) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                config.payment.qrCode = e.target.result;
+                saveLocal();
+                loadPaymentSettings();
+                updatePublicDisplay();
+                
+                uploadedQRFile = null;
+                const fileNameDisplay = document.getElementById('qr-file-name');
+                if (fileNameDisplay) fileNameDisplay.innerHTML = '';
+                
+                alert("✅ Data pembayaran berhasil disimpan!");
+            };
+            reader.readAsDataURL(uploadedQRFile);
+        } else {
+            saveLocal();
+            loadPaymentSettings();
+            updatePublicDisplay();
+            alert("✅ Data pembayaran berhasil disimpan!");
+        }
+    }
+
+    // ==================== GACHA PRIZE MANAGEMENT (ASLI) ====================
+    function renderGachaPrizeList() {
+        const prizeList = document.getElementById('gacha-prize-list');
+        if (!prizeList) return;
+        
+        if (!config.gachaPrizes || config.gachaPrizes.length === 0) {
+            prizeList.innerHTML = '<p style="text-align:center; padding:8px; color:#666;">Belum ada hadiah gacha</p>';
+            return;
+        }
+        
+        let html = '';
+        config.gachaPrizes.forEach(prize => {
+            const prizeClass = prize.class || getPrizeClass(prize.weight);
+            html += `
+                <div class="prize-item prize-${prizeClass}">
+                    <i class="fa-solid ${prize.type === 'premium' ? 'fa-crown' : 'fa-robot'}"></i>
+                    <span class="prize-name">${prize.name}</span>
+                    <span class="prize-chance">${prize.weight}%</span>
+                </div>
+            `;
+        });
+        
+        prizeList.innerHTML = html;
+    }
+    
+    function renderGachaPrizeListAdmin() {
+        const list = document.getElementById('gacha-prize-list-admin');
+        if (!list) return;
+        
+        if (!config.gachaPrizes || config.gachaPrizes.length === 0) {
+            list.innerHTML = '<div class="empty-products"><i class="fa-solid fa-dice"></i><p>Belum ada hadiah gacha</p></div>';
+            return;
+        }
+        
+        let html = '';
+        config.gachaPrizes.forEach((prize, index) => {
+            const prizeClass = prize.class || getPrizeClass(prize.weight);
+            html += `
+                <div class="gacha-prize-item">
+                    <div class="gacha-prize-info">
+                        <span class="gacha-prize-name">${prize.name}</span>
+                        <div class="gacha-prize-details">
+                            <span class="gacha-prize-type">${prize.type === 'premium' ? '👑' : '🤖'}</span>
+                            <span class="gacha-prize-type">${prize.days}H</span>
+                            <span class="gacha-prize-weight">${prize.weight}%</span>
+                            <span class="gacha-prize-type prize-${prizeClass}">${prizeClass.substring(0,3)}</span>
+                        </div>
+                    </div>
+                    <div class="delete-gacha-btn" onclick="deleteGachaPrize(${index})">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </div>
+                </div>
+            `;
+        });
+        
+        list.innerHTML = html;
+        updateTotalWeight();
+    }
+    
+    function getPrizeClass(weight) {
+        if (weight <= 2) return 'legendary';
+        if (weight <= 5) return 'epic';
+        if (weight <= 15) return 'rare';
+        return 'common';
+    }
+    
+    function updateWeightValue(value) {
+        document.getElementById('weight-value').innerText = value + '%';
+    }
+    
+    function updateTotalWeight() {
+        const total = config.gachaPrizes.reduce((sum, prize) => sum + prize.weight, 0);
+        const totalEl = document.getElementById('total-weight');
+        if (totalEl) totalEl.innerText = total;
+        
+        if (total > 100) {
+            totalEl.style.color = '#ff5555';
+        } else {
+            totalEl.style.color = 'var(--gold)';
+        }
+    }
+    
+    function addGachaPrize() {
+        const nameInput = document.getElementById('new-gacha-name');
+        const typeSelect = document.getElementById('new-gacha-type');
+        const daysInput = document.getElementById('new-gacha-days');
+        const weightInput = document.getElementById('new-gacha-weight');
+        
+        const name = nameInput ? nameInput.value.trim() : '';
+        const type = typeSelect ? typeSelect.value : 'premium';
+        const days = daysInput ? parseInt(daysInput.value) : 1;
+        const weight = weightInput ? parseInt(weightInput.value) : 10;
+        
+        if (!name) {
+            alert("⚠️ Masukkan nama hadiah!");
+            return;
+        }
+        
+        if (days < 1 || days > 365) {
+            alert("⚠️ Durasi harus antara 1-365 hari!");
+            return;
+        }
+        
+        const currentTotal = config.gachaPrizes.reduce((sum, p) => sum + p.weight, 0);
+        const newTotal = currentTotal + weight;
+        
+        if (newTotal > 100) {
+            alert(`⚠️ Total persentase tidak boleh melebihi 100%! Saat ini ${currentTotal}% + ${weight}% = ${newTotal}%`);
+            return;
+        }
+        
+        const prizeClass = getPrizeClass(weight);
+        
+        config.gachaPrizes.push({
+            name: name,
+            type: type,
+            days: days,
+            weight: weight,
+            class: prizeClass
+        });
+        
+        saveLocal();
+        renderGachaPrizeList();
+        renderGachaPrizeListAdmin();
+        publishGachaToCloud();
+        
+        if (nameInput) nameInput.value = '';
+        if (daysInput) daysInput.value = '1';
+        if (weightInput) weightInput.value = '10';
+        if (document.getElementById('weight-value')) {
+            document.getElementById('weight-value').innerText = '10%';
+        }
+        
+        alert("✅ Hadiah gacha berhasil ditambahkan dan di-publish!");
+    }
+    
+    function deleteGachaPrize(index) {
+        if (confirm("⚠️ Hapus hadiah gacha ini?")) {
+            if (config.gachaPrizes && config.gachaPrizes[index]) {
+                config.gachaPrizes.splice(index, 1);
+                saveLocal();
+                renderGachaPrizeList();
+                renderGachaPrizeListAdmin();
+                publishGachaToCloud();
+                alert("✅ Hadiah gacha berhasil dihapus!");
+            }
+        }
+    }
+    
+    function deleteAllGachaPrizes() {
+        if (!config.gachaPrizes || config.gachaPrizes.length === 0) {
+            alert("⚠️ Tidak ada hadiah gacha untuk dihapus!");
+            return;
+        }
+        
+        if (confirm("⚠️⚠️ PERINGATAN! ⚠️⚠️\n\nApakah Anda yakin ingin menghapus SEMUA hadiah gacha?\nTindakan ini tidak dapat dibatalkan!")) {
+            config.gachaPrizes = [];
+            saveLocal();
+            renderGachaPrizeList();
+            renderGachaPrizeListAdmin();
+            publishGachaToCloud();
+            alert("✅ Semua hadiah gacha berhasil dihapus!");
+        }
+    }
+
+    // ==================== CORE FUNCTIONS (ASLI) ====================
+    function enterSystem() {
+        updateAccent(localStorage.getItem('user_accent') || config.accent);
+        
+        const video = document.getElementById('bg-vid');
+        const audio = document.getElementById('anime-music');
+        const videoSrc = document.getElementById('video-src');
+        const musicSrc = document.getElementById('music-src');
+        
+        if (config.bgVideo && videoSrc) {
+            videoSrc.src = config.bgVideo;
+            if (video) {
+                video.load();
+                video.play().catch(() => {});
+            }
+        }
+        
+        if (config.bgMusic && musicSrc) {
+            musicSrc.src = config.bgMusic;
+            if (audio) {
+                audio.load();
+                audio.play().catch(() => {});
+            }
+        }
+        
+        const welcomeOverlay = document.getElementById('welcome-overlay');
+        if (welcomeOverlay) {
+            welcomeOverlay.style.opacity = "0";
+            setTimeout(() => {
+                welcomeOverlay.style.display = "none";
+                const loginScreen = document.getElementById('login-screen');
+                if (loginScreen) loginScreen.style.display = 'flex';
+            }, 1000);
+        }
+    }
+
+    function updateAccent(color) {
+        if (color) {
+            document.documentElement.style.setProperty('--accent', color);
+            localStorage.setItem('user_accent', color);
+        }
+    }
+
+    function login(u) {
+        currentUser = u;
+        localStorage.setItem('uno_session', JSON.stringify(u));
+        
+        const loginScreen = document.getElementById('login-screen');
+        if (loginScreen) loginScreen.style.display = 'none';
+        
+        const mainHeader = document.getElementById('main-header');
+        const mainApp = document.getElementById('main-app');
+        const mainNav = document.getElementById('main-nav');
+        
+        if (mainHeader) mainHeader.style.display = 'flex';
+        if (mainApp) mainApp.style.display = 'block';
+        if (mainNav) mainNav.style.display = 'flex';
+        
+        autoSaveNewMember(u);
+        
+        // ========== TAMBAHAN: SYNC KE CLOUD SAAT LOGIN ==========
+        syncUserToCloud(u);
+        if (u.role === 'developer') {
+            setTimeout(fetchAllMembersFromCloud, 2000);
+        }
+        
+        syncUI();
+        startSlideShow();
+    }
+
+    function syncUI() {
+        const userNameEl = document.getElementById('display-user-name');
+        if (userNameEl) userNameEl.innerText = currentUser.name || 'USER';
+        
+        const pfp = currentUser.pfp || 'https://ui-avatars.com/api/?name=' + (currentUser.name || 'USER');
+        const headerAvatar = document.getElementById('header-avatar');
+        const profileImg = document.getElementById('profile-img-display');
+        
+        if (headerAvatar) headerAvatar.src = pfp;
+        if (profileImg) profileImg.src = pfp;
+        
+        const memberData = config.members.find(m => m.name === currentUser.name);
+        const julukanContainer = document.getElementById('profile-julukan-container');
+        
+        if (julukanContainer) {
+            if (memberData && memberData.julukan) {
+                julukanContainer.innerHTML = `<span class="profile-julukan"><i class="fa-solid fa-tag"></i> ${memberData.julukan}</span>`;
+            } else {
+                julukanContainer.innerHTML = '';
+            }
+        }
+        
+        const nameTagContainer = document.getElementById('name-tag-container');
+        const isDeveloper = currentUser.role === 'developer';
+        
+        if (nameTagContainer) {
+            if (isDeveloper) {
+                nameTagContainer.innerHTML = `
+                    <div class="name-tag developer-tag">
+                        <i class="fa-solid fa-crown"></i>
+                        ARCHITECT
+                        <i class="fa-solid fa-crown"></i>
+                    </div>
+                `;
+            } else {
+                nameTagContainer.innerHTML = `
+                    <div class="name-tag member-tag">
+                        <i class="fa-solid fa-user-astronaut"></i>
+                        CREW
+                        <i class="fa-solid fa-user-astronaut"></i>
+                    </div>
+                `;
+            }
+        }
+        
+        const devBtn = document.getElementById('dev-console-btn');
+        if (devBtn) {
+            devBtn.style.display = currentUser.role === 'developer' ? 'block' : 'none';
+        }
+        
+        renderSlider();
+        loadCategory('sewa');
+        
+        const statusDisplay = document.getElementById('status-cap-display');
+        if (statusDisplay) {
+            if (memberData && memberData.subs && memberData.subs.length > 0) {
+                const now = new Date();
+                const active = memberData.subs
+                    .filter(s => new Date(s.expiry) > now)
+                    .map(s => `${s.type} (${s.expiry})`)
+                    .join(', ');
+                statusDisplay.innerText = active || 'MEMBER';
+            } else {
+                statusDisplay.innerText = 'MEMBER';
+            }
+        }
+        
+        renderMySubscription();
+    }
+
+    function renderSlider() {
+        const slider = document.getElementById('slider');
+        if (slider && config.banners && config.banners.length > 0) {
+            slider.innerHTML = config.banners.map(b => `<div class="slide"><img src="${b}" alt="banner" onerror="this.src='https://via.placeholder.com/400x160?text=Error'"></div>`).join('');
+        }
+    }
+
+    function startSlideShow() {
+        if (slideInterval) clearInterval(slideInterval);
+        slideInterval = setInterval(() => {
+            if (config.banners && config.banners.length > 0) {
+                slideIdx = (slideIdx + 1) % config.banners.length;
+                const slider = document.getElementById('slider');
+                if (slider) slider.style.transform = `translateX(-${slideIdx * 100}%)`;
+            }
+        }, 4000);
+    }
+
+    function loadCategory(c, el) {
+        if (el) {
+            document.querySelectorAll('.cat-btn').forEach(t => t.classList.remove('active'));
+            el.classList.add('active');
+        }
+        
+        const data = (config.prices && config.prices[c]) ? config.prices[c] : [];
+        const catalog = document.getElementById('catalog');
+        
+        if (catalog) {
+            if (data.length > 0) {
+                catalog.innerHTML = data.map(i => {
+                    const benefits = i.b && i.b.length > 0
+                        ? `<hr class="benefit-divider">
+                           <div class="benefit-list">${i.b.map(b => `
+                               <div class="benefit-item">
+                                   <i class="${b.icon || 'fa-solid fa-check'}"></i>
+                                   <span>${b.text}</span>
+                               </div>`).join('')}
+                           </div>`
+                        : '';
+                    return `
+                    <div class="glass-card">
+                        <div class="card-title">${i.n || 'Produk'}</div>
+                        <div class="price-tag">Rp ${i.p || '0'}</div>
+                        ${benefits}
+                        <button class="buy-btn" onclick="openPay('${(i.n || 'Produk').replace(/'/g,"\'")}', '${i.p || '0'}')">ACQUIRE</button>
+                    </div>`;
+                }).join('');
+            } else {
+                catalog.innerHTML = '<p style="text-align:center; opacity:0.3; padding:16px;">No Assets</p>';
+            }
+        }
+    }
+
+    // ========== GACHA FUNCTIONS (ASLI) ==========
+    function spinGacha() {
+        if (!currentUser) {
+            alert("❌ Silakan login terlebih dahulu!");
+            return;
+        }
+        
+        if (!config.gachaPrizes || config.gachaPrizes.length === 0) {
+            alert("❌ Belum ada hadiah gacha!");
+            return;
+        }
+        
+        const last = localStorage.getItem(`gacha_${currentUser.name}`);
+        if (last && (Date.now() - parseInt(last)) < 86400000) {
+            alert("❌ Cooldown Active! Tunggu 24 jam untuk spin lagi.");
+            return;
+        }
+        
+        const btn = document.getElementById('btn-gacha-action');
+        const resultContainer = document.getElementById('gacha-result-container');
+        
+        if (btn) {
+            btn.innerText = "SPINNING...";
+            btn.disabled = true;
+        }
+        
+        if (resultContainer) {
+            resultContainer.innerHTML = '<p style="text-align:center; color:var(--accent);">Memutar keberuntungan...</p>';
+        }
+        
+        setTimeout(() => {
+            const totalWeight = config.gachaPrizes.reduce((sum, prize) => sum + prize.weight, 0);
+            
+            const normalizedPrizes = config.gachaPrizes.map(prize => ({
+                ...prize,
+                normalizedWeight: (prize.weight / totalWeight) * 100
+            }));
+            
+            const random = Math.random() * 100;
+            
+            let cumulativeWeight = 0;
+            let selectedPrize = config.gachaPrizes[0];
+            
+            for (const prize of normalizedPrizes) {
+                cumulativeWeight += prize.normalizedWeight;
+                if (random < cumulativeWeight) {
+                    selectedPrize = prize;
+                    break;
+                }
+            }
+            
+            lastGachaResult = selectedPrize;
+            
+            if (resultContainer) {
+                const prizeClass = selectedPrize.class || getPrizeClass(selectedPrize.weight);
+                const bgColor = prizeClass === 'legendary' ? 'rgba(255,0,170,0.2)' : 
+                               prizeClass === 'epic' ? 'rgba(170,0,255,0.2)' :
+                               prizeClass === 'rare' ? 'rgba(0,170,255,0.2)' : 'rgba(170,170,170,0.2)';
+                
+                resultContainer.innerHTML = `
+                    <div style="background: ${bgColor}; border-radius: 8px; padding: 12px; text-align: center; margin-top: 8px; border: 1px solid var(--gold);">
+                        <p style="font-size: 11px; color: #ccc;">🎉 SELAMAT! 🎉</p>
+                        <p style="font-size: 14px; font-weight: 900; color: var(--gold);">${selectedPrize.name}</p>
+                        <button class="claim-btn" onclick="claimGachaPrize()">
+                            <i class="fa-brands fa-whatsapp"></i> CLAIM
+                        </button>
+                    </div>
+                `;
+            }
+            
+            alert("✨ GACHA RESULT: " + selectedPrize.name);
+            
+            localStorage.setItem(`gacha_${currentUser.name}`, Date.now().toString());
+            if (btn) {
+                btn.innerText = "SPIN NOW";
+                btn.disabled = false;
+            }
+        }, 2000);
+    }
+    
+    function claimGachaPrize() {
+        if (!lastGachaResult) {
+            alert("⚠️ Tidak ada hadiah yang bisa diklaim!");
+            return;
+        }
+        
+        const waNumber = window.WA_NUMBER || "6283856169422";
+        const currentDate = new Date().toLocaleString('id-ID', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+        
+        const prize = lastGachaResult;
+        const prizeClass = prize.class || getPrizeClass(prize.weight);
+        const prizeEmoji = prizeClass === 'legendary' ? '👑👑👑' :
+                          prizeClass === 'epic' ? '👑👑' :
+                          prizeClass === 'rare' ? '👑' : '🎁';
+        
+        const message = `┏━━━━━━━━━━━━━━━━━━━┓
+┃   *KLAIM HADIAH GACHA*   ┃
+┃    *UNO-STOREZZ*    ┃
+┗━━━━━━━━━━━━━━━━━━━┛
+
+━━━━━━━━━━━━━━━━━━━
+*📋 DETAIL KLAIM*
+━━━━━━━━━━━━━━━━━━━
+👤 *Penerima* : ${currentUser.name}
+🎁 *Hadiah*   : ${prize.name} ${prizeEmoji}
+📅 *Waktu*    : ${currentDate}
+
+━━━━━━━━━━━━━━━━━━━
+*✨ INFO HADIAH*
+━━━━━━━━━━━━━━━━━━━
+📦 *Jenis*    : ${prize.type === 'premium' ? 'Premium' : 'Sewa Bot'}
+⏰ *Durasi*   : ${prize.days} Hari
+⭐ *Kelangkaan* : ${prizeClass.toUpperCase()}
+📊 *Persentase* : ${prize.weight}%
+
+━━━━━━━━━━━━━━━━━━━
+*📝 INSTRUKSI*
+━━━━━━━━━━━━━━━━━━━
+1️⃣ Hadiah akan diaktivasi oleh Admin
+2️⃣ Proses maksimal 1x24 jam
+3️⃣ Simpan screenshot chat ini
+
+Mohon segera diproses ya, Admin!
+Terima kasih! 🙏
+
+━━━━━━━━━━━━━━━━━━━
+*UNO-STOREZZ | UNO XALYA EDITION*`;
+        
+        const waLink = `https://wa.me/${waNumber}?text=${encodeURIComponent(message)}`;
+        window.open(waLink, '_blank');
+        
+        alert("✅ Silakan kirim pesan klaim hadiah ke WhatsApp Admin!");
+        
+        lastGachaResult = null;
+        const resultContainer = document.getElementById('gacha-result-container');
+        if (resultContainer) resultContainer.innerHTML = '';
+    }
+
+    // ========== EDIT NAME FUNCTIONS (ASLI) ==========
+    function openEditNameModal() {
+        const input = document.getElementById('new-name-input');
+        if (input) input.value = currentUser.name;
+        openModal('editNameModal');
+    }
+    
+    function saveNewName() {
+        const input = document.getElementById('new-name-input');
+        const newName = input ? input.value.trim() : '';
+        
+        if (!newName) {
+            alert("⚠️ Nama tidak boleh kosong!");
+            return;
+        }
+        
+        const oldName = currentUser.name;
+        currentUser.name = newName;
+        localStorage.setItem('uno_session', JSON.stringify(currentUser));
+        
+        const memberIndex = config.members.findIndex(m => m.name === oldName);
+        if (memberIndex !== -1) {
+            config.members[memberIndex].name = newName;
+            saveLocal();
+        }
+        
+        closeModal('editNameModal');
+        syncUI();
+        renderMemberList();
+        alert("✅ Nama berhasil diubah menjadi " + newName);
+    }
+
+    // ========== PAYMENT FUNCTIONS (ASLI) ==========
+    function openPay(n, p) {
+        if (!currentUser) {
+            alert("❌ Silakan login terlebih dahulu!");
+            return;
+        }
+        
+        tempProd = n;
+        tempPrice = p;
+        
+        const nameEl = document.getElementById('pay-item-name');
+        const priceEl = document.getElementById('pay-item-price');
+        const buyerEl = document.getElementById('pay-buyer-name');
+        
+        if (nameEl) nameEl.innerText = n;
+        if (priceEl) priceEl.innerText = "Rp " + p;
+        if (buyerEl) buyerEl.innerText = currentUser.name;
+        
+        uploadedFile = null;
+        const fileNameDisplay = document.getElementById('file-name-display');
+        if (fileNameDisplay) fileNameDisplay.innerHTML = '';
+        
+        loadPaymentSettings();
+        
+        openModal('paymentModal');
+    }
+    
+    function handleFileUpload(input) {
+        if (input.files && input.files[0]) {
+            const file = input.files[0];
+            
+            if (file.size > 5 * 1024 * 1024) {
+                alert("⚠️ File terlalu besar! Maksimal 5MB.");
+                return;
+            }
+            
+            if (!file.type.match('image.*')) {
+                alert("⚠️ Hanya file gambar yang diperbolehkan!");
+                return;
+            }
+            
+            uploadedFile = file;
+            const fileNameDisplay = document.getElementById('file-name-display');
+            if (fileNameDisplay) {
+                fileNameDisplay.innerHTML = `<i class="fa-solid fa-check-circle" style="color:var(--gold);"></i> ${file.name}`;
+            }
+        }
+    }
+    
+    function sendPaymentConfirmation() {
+        if (!uploadedFile) {
+            alert("⚠️ Mohon upload bukti transfer terlebih dahulu!");
+            return;
+        }
+        
+        const waNumber = window.WA_NUMBER || "6283856169422";
+        const currentDate = new Date().toLocaleString('id-ID', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+        
+        const methods = [];
+        if (config.payment.methods.dana) methods.push("DANA");
+        if (config.payment.methods.gopay) methods.push("GOPAY");
+        if (config.payment.methods.ovo) methods.push("OVO");
+        const methodsText = methods.join(" / ");
+        
+        const reader = new FileReader();
+        reader.onload = function() {
+            const message = `┏━━━━━━━━━━━━━━━━━━━┓
+┃  *KONFIRMASI PEMBAYARAN*  ┃
+┃    *UNO-STOREZZ*    ┃
+┗━━━━━━━━━━━━━━━━━━━┛
+
+━━━━━━━━━━━━━━━━━━━
+*📋 DETAIL PEMBELIAN*
+━━━━━━━━━━━━━━━━━━━
+👤 *Pembeli* : ${currentUser.name}
+📦 *Produk*  : ${tempProd}
+💰 *Harga*   : Rp ${tempPrice}
+📅 *Waktu*   : ${currentDate}
+
+━━━━━━━━━━━━━━━━━━━
+*💳 INFO PEMBAYARAN*
+━━━━━━━━━━━━━━━━━━━
+🏦 *Rekening* : ${config.payment.accountNumber}
+📝 *Atas Nama* : ${config.payment.accountName}
+💸 *Metode*   : ${methodsText}
+
+━━━━━━━━━━━━━━━━━━━
+*💳 BUKTI TRANSFER*
+━━━━━━━━━━━━━━━━━━━
+✅ *Berhasil diupload*
+📎 *Nama File* : ${uploadedFile.name}
+📊 *Ukuran*    : ${(uploadedFile.size / 1024).toFixed(2)} KB
+
+━━━━━━━━━━━━━━━━━━━
+*📸 SCREENSHOT BUKTI*
+━━━━━━━━━━━━━━━━━━━
+[ Bukti transfer terlampir di bawah ]
+
+Mohon segera diproses ya, Admin!
+Terima kasih! 🙏
+
+━━━━━━━━━━━━━━━━━━━
+*UNO-STOREZZ | UNO XALYA EDITION*`;
+            
+            const waLink = `https://wa.me/${waNumber}?text=${encodeURIComponent(message)}`;
+            window.open(waLink, '_blank');
+            
+            alert("✅ Silakan kirim file bukti transfer secara manual setelah chat terbuka!");
+            
+            uploadedFile = null;
+            const fileNameDisplay = document.getElementById('file-name-display');
+            if (fileNameDisplay) fileNameDisplay.innerHTML = '';
+            
+            closeModal('paymentModal');
+        };
+        
+        reader.readAsDataURL(uploadedFile);
+    }
+
+    // ========== ADMIN FUNCTIONS (ASLI) ==========
+    function switchAdminTab(t) {
+        const members = document.getElementById('adm-members');
+        const prices = document.getElementById('adm-prices');
+        const gacha = document.getElementById('adm-gacha');
+        const payment = document.getElementById('adm-payment');
+        const subs = document.getElementById('adm-subs');
+        const configTab = document.getElementById('adm-config');
+        const tabMembers = document.getElementById('tab-btn-members');
+        const tabPrices = document.getElementById('tab-btn-prices');
+        const tabGacha = document.getElementById('tab-btn-gacha');
+        const tabPayment = document.getElementById('tab-btn-payment');
+        const tabSubs = document.getElementById('tab-btn-subs');
+        const tabConfig = document.getElementById('tab-btn-config');
+        
+        if (members) members.style.display = t === 'members' ? 'block' : 'none';
+        if (prices) prices.style.display = t === 'prices' ? 'block' : 'none';
+        if (gacha) gacha.style.display = t === 'gacha' ? 'block' : 'none';
+        if (payment) payment.style.display = t === 'payment' ? 'block' : 'none';
+        if (subs) subs.style.display = t === 'subs' ? 'block' : 'none';
+        if (configTab) configTab.style.display = t === 'config' ? 'block' : 'none';
+        
+        if (tabMembers) tabMembers.classList.toggle('active', t === 'members');
+        if (tabPrices) tabPrices.classList.toggle('active', t === 'prices');
+        if (tabGacha) tabGacha.classList.toggle('active', t === 'gacha');
+        if (tabPayment) tabPayment.classList.toggle('active', t === 'payment');
+        if (tabSubs) tabSubs.classList.toggle('active', t === 'subs');
+        if (tabConfig) tabConfig.classList.toggle('active', t === 'config');
+        
+        if (t === 'members') {
+            // Selalu ambil data terbaru dari cloud sebelum render
+            fetchAllMembersFromCloud().then(() => {
+                renderMemberList();
+                updateSubscriptionStats();
+                updateMemberSelect();
+            });
+        }
+        if (t === 'config') renderAdminBannerList();
+        if (t === 'prices') renderAdminProductList();
+        if (t === 'gacha') {
+            renderGachaPrizeListAdmin();
+            updateTotalWeight();
+        }
+        if (t === 'payment') loadPaymentSettings();
+        if (t === 'subs') {
+            renderSubscriptionList();
+            updateSubscriptionStats();
+            updateMemberSelect();
+        }
+    }
+
+    // ========== JULUKAN FUNCTIONS (ASLI) ==========
+    function openJulukanModal(memberName) {
+        selectedMemberForJulukan = memberName;
+        const member = config.members.find(m => m.name === memberName);
+        const input = document.getElementById('julukan-input');
+        if (input) input.value = (member && member.julukan) ? member.julukan : '';
+        openModal('julukanModal');
+    }
+    
+    function selectJulukanSuggestion(julukan) {
+        const input = document.getElementById('julukan-input');
+        if (input) input.value = julukan;
+    }
+    
+    function saveJulukan() {
+        if (!selectedMemberForJulukan) return;
+        
+        const input = document.getElementById('julukan-input');
+        const julukan = input ? input.value.trim() : '';
+        const memberIndex = config.members.findIndex(m => m.name === selectedMemberForJulukan);
+        
+        if (memberIndex !== -1) {
+            config.members[memberIndex].julukan = julukan;
+            saveLocal();
+            
+            // ========== TAMBAHAN: SYNC KE CLOUD ==========
+            syncMembersToCloud();
+            
+            closeModal('julukanModal');
+            renderMemberList();
+            
+            if (currentUser && currentUser.name === selectedMemberForJulukan) {
+                syncUI();
+            }
+            
+            alert(`✅ Julukan "${julukan || 'dihapus'}" berhasil disimpan!`);
+        }
+    }
+
+    // ========== MEMBER MANAGEMENT (ASLI) ==========
+    function renderMemberList() {
+        const container = document.getElementById('member-list-container');
+        if (!container) return;
+        
+        const totalMembers = config.members.length;
+        const totalDevelopers = config.members.filter(m => m.role === 'developer').length;
+        const totalRegular = config.members.filter(m => m.role === 'member' || !m.role).length;
+        
+        const totalMembersEl = document.getElementById('total-members-count');
+        const totalDevelopersEl = document.getElementById('total-developers-count');
+        const totalRegularEl = document.getElementById('total-regular-count');
+        
+        if (totalMembersEl) totalMembersEl.innerText = totalMembers;
+        if (totalDevelopersEl) totalDevelopersEl.innerText = totalDevelopers;
+        if (totalRegularEl) totalRegularEl.innerText = totalRegular;
+        
+        let html = '';
+        config.members.forEach((member) => {
+            const now = new Date();
+            const activeSubs = (member.subs) ? member.subs.filter(s => new Date(s.expiry) > now) : [];
+            const expiredSubs = (member.subs) ? member.subs.filter(s => new Date(s.expiry) <= now) : [];
+            
+            const isDeveloper = member.role === 'developer';
+            const memberClass = isDeveloper ? 'developer' : 'member';
+            const avatarInitial = member.name ? member.name.charAt(0).toUpperCase() : '?';
+            
+            let subsHtml = '';
+            if (member.subs && member.subs.length > 0) {
+                subsHtml = '<div class="subs-list">';
+                activeSubs.forEach(s => {
+                    subsHtml += `
+                        <div class="subs-item">
+                            <i class="fa-solid fa-bolt"></i>
+                            ${s.type} <span style="color:var(--gold);">(${s.expiry})</span>
+                        </div>
+                    `;
+                });
+                expiredSubs.forEach(s => {
+                    subsHtml += `
+                        <div class="subs-item expired">
+                            <i class="fa-solid fa-clock"></i>
+                            ${s.type} <span style="color:#ff5555;">(${s.expiry})</span>
+                        </div>
+                    `;
+                });
+                subsHtml += '</div>';
+            } else {
+                subsHtml = '<div class="no-subs"><i class="fa-solid fa-circle-exclamation"></i> No subs</div>';
+            }
+            
+            const julukanBadge = member.julukan ? 
+                `<span class="julukan-badge"><i class="fa-solid fa-tag"></i> ${member.julukan}</span>` : '';
+            
+            html += `
+                <div class="member-card ${memberClass}">
+                    <div class="member-header" style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
+                        <div class="member-avatar">${avatarInitial}</div>
+                        <div class="member-info" style="flex:1;">
+                            <div class="member-name" style="display:flex; align-items:center; flex-wrap:wrap;">
+                                ${member.name || 'Unknown'}
+                                ${julukanBadge}
+                            </div>
+                            <div class="member-badge-container">
+                                <span class="member-badge ${isDeveloper ? 'badge-developer' : 'badge-member'}">
+                                    <i class="fa-solid ${isDeveloper ? 'fa-crown' : 'fa-user'}"></i>
+                                    ${isDeveloper ? 'DEV' : 'MEM'}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="member-subscriptions">
+                        <div class="subs-title"><i class="fa-solid fa-boxes"></i> SUBS</div>
+                        ${subsHtml}
+                    </div>
+                    
+                    <div class="member-actions" style="display:flex; gap:6px;">
+                        ${!isDeveloper ? `
+                            <button class="set-julukan-btn" onclick="openJulukanModal('${member.name}')" style="flex:1;">
+                                <i class="fa-solid fa-tag"></i> JULUKAN
+                            </button>
+                        ` : ''}
+                        <button class="delete-member-btn" onclick="deleteMember('${member.name}')" style="flex:1;">
+                            <i class="fa-solid fa-trash-can"></i> HAPUS
+                        </button>
+                    </div>
+                </div>
+            `;
+        });
+        
+        container.innerHTML = html || '<div class="empty-products"><i class="fa-solid fa-users"></i><p>Belum ada crew member</p></div>';
+    }
+
+    function deleteMember(memberName) {
+        if (currentUser && currentUser.name === memberName) {
+            alert("❌ Tidak bisa menghapus diri sendiri saat sedang login!");
+            return;
+        }
+        if (confirm(`⚠️ Apakah Anda yakin ingin menghapus member ${memberName} secara permanen?`)) {
+            config.members = config.members.filter(m => m.name !== memberName);
+            saveLocal();
+            
+            // ========== TAMBAHAN: SYNC KE CLOUD ==========
+            syncMembersToCloud();
+            
+            renderMemberList();
+            updateSubscriptionStats();
+            updateMemberSelect();
+            alert("✅ Member berhasil dihapus!");
+        }
+    }
+
+    // ========== PRODUCT MANAGEMENT (ASLI) ==========
+    function addNewItem() {
+        const select = document.getElementById('sel-cat-add');
+        const nameInput = document.getElementById('new-item-name');
+        const priceInput = document.getElementById('new-item-price');
+        
+        if (!select || !nameInput || !priceInput) return;
+        
+        const category = select.value;
+        const name = nameInput.value.trim();
+        const price = priceInput.value.trim();
+        
+        if (name && price) {
+            if (!config.prices[category]) config.prices[category] = [];
+            // Kumpulkan benefits dari form
+            const benefits = [];
+            document.querySelectorAll('#benefit-rows-container .benefit-row').forEach(row => {
+                const icon = row.querySelector('select')?.value || 'fa-solid fa-check';
+                const text = row.querySelector('input')?.value.trim() || '';
+                if (text) benefits.push({ icon, text });
+            });
+            config.prices[category].push({ n: name, p: price, b: benefits });
+            saveLocal();
+            renderAdminProductList();
+            publishProductsToCloud();
+            
+            nameInput.value = "";
+            priceInput.value = "";
+            document.getElementById('benefit-rows-container').innerHTML = '';
+            
+            const activeCat = document.querySelector('.cat-btn.active span')?.innerText.toLowerCase() || 'sewa';
+            if (activeCat === category) {
+                loadCategory(category);
+            }
+            
+            alert("✅ Produk berhasil ditambahkan dan di-publish!");
+        } else {
+            alert("⚠️ Mohon isi nama dan harga produk!");
+        }
+    }
+
+    function renderAdminProductList() {
+        const select = document.getElementById('sel-cat-add');
+        const list = document.getElementById('admin-product-list');
+        
+        if (!select || !list) return;
+        
+        const category = select.value;
+        const products = (config.prices[category]) ? config.prices[category] : [];
+        
+        if (products.length === 0) {
+            list.innerHTML = `
+                <div class="empty-products">
+                    <i class="fa-solid fa-box-open"></i>
+                    <p>Belum ada produk di kategori ini</p>
+                </div>
+            `;
+            return;
+        }
+        
+        list.innerHTML = products.map((item, idx) => {
+            const benefitTags = item.b && item.b.length > 0
+                ? item.b.map(b => `<span class="benefit-tag"><i class="${b.icon || 'fa-solid fa-check'}"></i> ${b.text}</span>`).join('')
+                : '<span style="font-size:7px;opacity:0.4;">Belum ada benefit</span>';
+            return `
+            <div class="product-item" style="flex-direction:column; align-items:flex-start; gap:6px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; width:100%;">
+                    <div class="product-info">
+                        <span class="product-name" style="font-size:10px;">${item.n || 'Produk'}</span>
+                        <span class="product-price">
+                            <i class="fa-solid fa-coins"></i> Rp ${item.p || '0'}
+                        </span>
+                    </div>
+                    <div style="display:flex;gap:4px;">
+                        <div class="delete-product-btn" onclick="openEditBenefit('${category}',${idx})" style="background:rgba(0,234,255,0.1);border-color:var(--accent);color:var(--accent);">
+                            <i class="fa-solid fa-star"></i>
+                        </div>
+                        <div class="delete-product-btn" onclick="deleteProduct('${category}', ${idx})">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </div>
+                    </div>
+                </div>
+                <div style="display:flex;flex-wrap:wrap;gap:2px;">${benefitTags}</div>
+            </div>`;
+        }).join('');
+    }
+    
+    function deleteProduct(category, index) {
+        if (confirm("⚠️ Hapus produk ini?")) {
+            if (config.prices[category] && config.prices[category][index]) {
+                config.prices[category].splice(index, 1);
+                saveLocal();
+                renderAdminProductList();
+                publishProductsToCloud();
+                
+                const activeCat = document.querySelector('.cat-btn.active span')?.innerText.toLowerCase() || 'sewa';
+                if (activeCat === category) {
+                    loadCategory(category);
+                }
+                
+                alert("✅ Produk berhasil dihapus!");
+            }
+        }
+    }
+
+    function addNewBanner() {
+        const input = document.getElementById('new-banner-link');
+        const url = input ? input.value.trim() : '';
+        
+        if (url) {
+            if (!config.banners) config.banners = [];
+            config.banners.push(url);
+            saveLocal();
+            renderAdminBannerList();
+            renderSlider();
+            publishBannersToCloud();
+            if (input) input.value = "";
+            alert("✅ Banner ditambahkan dan di-publish!");
+        } else {
+            alert("⚠️ Masukkan URL banner!");
+        }
+    }
+
+    function renderAdminBannerList() {
+        const list = document.getElementById('admin-banner-list');
+        if (!list) return;
+        
+        if (!config.banners) config.banners = [];
+        
+        if (config.banners.length === 0) {
+            list.innerHTML = '<p style="text-align:center; padding:8px; font-size:8px;">Belum ada banner</p>';
+            return;
+        }
+        
+        list.innerHTML = config.banners.map((b, i) => `
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px; padding:4px; background:rgba(255,255,255,0.03); border-radius:6px;">
+                <img src="${b}" style="width:35px; height:22px; border-radius:4px; object-fit:cover;" alt="banner" onerror="this.src='https://via.placeholder.com/35x22?text=Error'">
+                <span style="font-size:8px; flex:1; white-space:nowrap; overflow:hidden;">${b.substring(0,20)}...</span>
+                <button onclick="deleteBanner(${i})" style="color:red; background:none; border:none; padding:3px; cursor:pointer;">X</button>
+            </div>
+        `).join('');
+    }
+    
+    function deleteBanner(index) {
+        if (config.banners && config.banners[index]) {
+            config.banners.splice(index, 1);
+            saveLocal();
+            renderAdminBannerList();
+            renderSlider();
+            publishBannersToCloud();
+        }
+    }
+
+    function saveConfig() {
+        const videoInput = document.getElementById('cfg-video');
+        const musicInput = document.getElementById('cfg-music');
+        
+        if (videoInput && videoInput.value) config.bgVideo = videoInput.value;
+        if (musicInput && musicInput.value) config.bgMusic = musicInput.value;
+        
+        saveLocal();
+        updatePublicDisplay();
+        publishConfigToCloud();
+        
+        alert("✅ Konfigurasi disimpan dan di-publish ke cloud!");
+    }
+
+    // ========== SUBSCRIPTION MANAGEMENT FUNCTIONS (ASLI) ==========
+    function renderSubscriptionList() {
+        const container = document.getElementById('subscription-list');
+        if (!container) return;
+        
+        let html = '';
+        let totalActive = 0;
+        let totalPremium = 0;
+        let totalSewa = 0;
+        
+        config.members.forEach((member) => {
+            const now = new Date();
+            const allSubs = (member.subs) ? [...member.subs] : [];
+            
+            allSubs.forEach((sub, idx) => {
+                const expiryDate = new Date(sub.expiry);
+                const isActive = expiryDate > now;
+                const daysLeft = Math.ceil((expiryDate - now) / (1000 * 60 * 60 * 24));
+                
+                if (currentSubFilter === 'active' && !isActive) return;
+                if (currentSubFilter === 'expiring' && (daysLeft > 7 || !isActive)) return;
+                if (currentSubFilter === 'expired' && isActive) return;
+                
+                if (currentSubType !== 'all' && sub.type !== currentSubType) return;
+                
+                if (isActive) {
+                    totalActive++;
+                    if (sub.type === 'premium') totalPremium++;
+                    if (sub.type === 'sewa') totalSewa++;
+                }
+                
+                const startDate = new Date(sub.start);
+                const totalDays = Math.ceil((expiryDate - startDate) / (1000 * 60 * 60 * 24));
+                const progress = isActive ? ((totalDays - daysLeft) / totalDays) * 100 : 100;
+                
+                html += `
+                    <div class="subscription-card" data-member="${member.name}" data-sub-index="${idx}">
+                        <div class="sub-card-header">
+                            <div class="sub-member-avatar">${member.name.charAt(0).toUpperCase()}</div>
+                            <div class="sub-member-info">
+                                <div class="sub-member-name">${member.name}</div>
+                                <div class="sub-badge ${sub.type === 'premium' ? 'badge-premium' : 'badge-sewa'}">
+                                    <i class="fa-solid ${sub.type === 'premium' ? 'fa-crown' : 'fa-robot'}"></i>
+                                    ${sub.type.toUpperCase()}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="sub-details">
+                            <div class="sub-detail-item">
+                                <i class="fa-regular fa-calendar"></i>
+                                <span>${sub.start || '-'} - ${sub.expiry}</span>
+                            </div>
+                            <div class="sub-detail-item">
+                                <i class="fa-solid fa-hourglass-half"></i>
+                                <span>Sisa: <span class="days-left ${!isActive ? 'expired' : (daysLeft < 3 ? 'urgent' : '')}">${isActive ? daysLeft + ' hari' : 'Expired'}</span></span>
+                            </div>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar" style="width: ${progress}%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="sub-actions">
+                            <button class="edit-sub-btn" onclick="openEditSubscriptionModal('${member.name}', ${idx})">
+                                <i class="fa-solid fa-pen"></i> EDIT
+                            </button>
+                            <button class="delete-sub-btn" onclick="deleteSubscription('${member.name}', ${idx})">
+                                <i class="fa-solid fa-trash-can"></i> HAPUS
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+        });
+        
+        const totalSubsEl = document.getElementById('total-subs-count');
+        const premiumSubsEl = document.getElementById('premium-subs-count');
+        const sewaSubsEl = document.getElementById('sewa-subs-count');
+        
+        if (totalSubsEl) totalSubsEl.innerText = totalActive;
+        if (premiumSubsEl) premiumSubsEl.innerText = totalPremium;
+        if (sewaSubsEl) sewaSubsEl.innerText = totalSewa;
+        
+        if (html === '') {
+            html = '<div class="empty-products"><i class="fa-solid fa-box-open"></i><p>Tidak ada subscription</p></div>';
+        }
+        
+        container.innerHTML = html;
+    }
+
+    function updateSubscriptionStats() {
+        let total = 0;
+        let premium = 0;
+        let sewa = 0;
+        
+        config.members.forEach(member => {
+            if (member.subs) {
+                const now = new Date();
+                const active = member.subs.filter(s => new Date(s.expiry) > now);
+                total += active.length;
+                premium += active.filter(s => s.type === 'premium').length;
+                sewa += active.filter(s => s.type === 'sewa').length;
+            }
+        });
+        
+        const totalEl = document.getElementById('total-subs-count');
+        const premiumEl = document.getElementById('premium-subs-count');
+        const sewaEl = document.getElementById('sewa-subs-count');
+        
+        if (totalEl) totalEl.innerText = total;
+        if (premiumEl) premiumEl.innerText = premium;
+        if (sewaEl) sewaEl.innerText = sewa;
+    }
+
+    function updateMemberSelect() {
+        const select = document.getElementById('sub-member-select');
+        if (!select) return;
+        
+        select.innerHTML = '<option value="">-- Pilih Member --</option>' +
+            config.members.map(m => `<option value="${m.name}">${m.name}</option>`).join('');
+    }
+
+    function filterSubsByType(type) {
+        currentSubType = type;
+        renderSubscriptionList();
+    }
+
+    function filterSubsByStatus(status) {
+        currentSubFilter = status;
+        renderSubscriptionList();
+        
+        document.querySelectorAll('.filter-tab').forEach(el => {
+            el.classList.remove('active');
+        });
+        document.getElementById(`filter-${status}`).classList.add('active');
+    }
+
+    function openEditSubscriptionModal(memberName, subIndex) {
+        const member = config.members.find(m => m.name === memberName);
+        if (!member || !member.subs || !member.subs[subIndex]) return;
+        
+        currentEditMember = memberName;
+        currentEditSubIndex = subIndex;
+        
+        const sub = member.subs[subIndex];
+        const startDate = new Date(sub.start);
+        const formattedStartDate = startDate.toISOString().split('T')[0];
+        
+        const infoEl = document.getElementById('edit-sub-member-info');
+        if (infoEl) {
+            infoEl.innerHTML = `
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <div style="width:32px; height:32px; background:linear-gradient(135deg, var(--gold), var(--accent)); border-radius:8px; display:flex; align-items:center; justify-content:center;">
+                        <i class="fa-solid fa-user" style="color:#000; font-size:14px;"></i>
+                    </div>
+                    <div>
+                        <div style="font-weight:900; font-size:11px;">${memberName}</div>
+                        <div style="font-size:8px; opacity:0.6;">${sub.type} - ${sub.days} Hari</div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        const daysInput = document.getElementById('edit-days');
+        const dateInput = document.getElementById('edit-start-date');
+        
+        if (daysInput) daysInput.value = sub.days;
+        if (dateInput) dateInput.value = formattedStartDate;
+        
+        document.getElementById('editSubModal').style.display = 'flex';
+    }
+
+    function closeEditSubModal() {
+        document.getElementById('editSubModal').style.display = 'none';
+        currentEditMember = null;
+        currentEditSubIndex = null;
+    }
+
+    function saveSubscriptionEdit() {
+        if (!currentEditMember || currentEditSubIndex === null) return;
+        
+        const daysInput = document.getElementById('edit-days');
+        const startDateInput = document.getElementById('edit-start-date');
+        
+        if (!daysInput || !startDateInput) return;
+        
+        const newDays = parseInt(daysInput.value);
+        const startDate = new Date(startDateInput.value);
+        
+        if (isNaN(newDays) || newDays < 1 || newDays > 365) {
+            alert("⚠️ Durasi harus antara 1-365 hari!");
+            return;
+        }
+        
+        if (isNaN(startDate.getTime())) {
+            alert("⚠️ Tanggal mulai tidak valid!");
+            return;
+        }
+        
+        const member = config.members.find(m => m.name === currentEditMember);
+        if (!member || !member.subs || !member.subs[currentEditSubIndex]) return;
+        
+        const expiryDate = new Date(startDate);
+        expiryDate.setDate(expiryDate.getDate() + newDays);
+        
+        member.subs[currentEditSubIndex].days = newDays;
+        member.subs[currentEditSubIndex].start = startDate.toLocaleDateString('id-ID');
+        member.subs[currentEditSubIndex].expiry = expiryDate.toLocaleDateString('id-ID');
+        
+        saveLocal();
+        
+        // ========== TAMBAHAN: SYNC KE CLOUD ==========
+        syncMembersToCloud();
+        
+        closeEditSubModal();
+        renderMemberList();
+        renderSubscriptionList();
+        updateSubscriptionStats();
+        
+        if (currentUser && currentUser.name === currentEditMember) {
+            syncUI();
+        }
+        
+        alert("✅ Subscription berhasil diperbarui!");
+    }
+
+    function deleteSubscription(memberName, subIndex) {
+        if (!confirm(`⚠️ Hapus subscription ini?`)) return;
+        
+        const member = config.members.find(m => m.name === memberName);
+        if (member && member.subs) {
+            member.subs.splice(subIndex, 1);
+            saveLocal();
+            
+            // ========== TAMBAHAN: SYNC KE CLOUD ==========
+            syncMembersToCloud();
+            
+            renderMemberList();
+            renderSubscriptionList();
+            updateSubscriptionStats();
+            
+            if (currentUser && currentUser.name === memberName) {
+                syncUI();
+            }
+            
+            alert("✅ Subscription dihapus!");
+        }
+    }
+
+    function addNewSubscription() {
+        const memberSelect = document.getElementById('sub-member-select');
+        const typeSelect = document.getElementById('sub-type-select');
+        const daysInput = document.getElementById('sub-days');
+        
+        if (!memberSelect || !typeSelect || !daysInput) return;
+        
+        const memberName = memberSelect.value;
+        const type = typeSelect.value;
+        const days = parseInt(daysInput.value);
+        
+        if (!memberName) {
+            alert("⚠️ Pilih member terlebih dahulu!");
+            return;
+        }
+        
+        if (isNaN(days) || days < 1 || days > 365) {
+            alert("⚠️ Durasi harus antara 1-365 hari!");
+            return;
+        }
+        
+        const member = config.members.find(m => m.name === memberName);
+        if (!member) return;
+        
+        if (!member.subs) member.subs = [];
+        
+        const startDate = new Date();
+        const expiryDate = new Date();
+        expiryDate.setDate(expiryDate.getDate() + days);
+        
+        member.subs.push({
+            type: type,
+            days: days,
+            start: startDate.toLocaleDateString('id-ID'),
+            expiry: expiryDate.toLocaleDateString('id-ID')
+        });
+        
+        saveLocal();
+        
+        // ========== TAMBAHAN: SYNC KE CLOUD ==========
+        syncMembersToCloud();
+        
+        daysInput.value = '30';
+        
+        renderMemberList();
+        renderSubscriptionList();
+        updateSubscriptionStats();
+        
+        if (currentUser && currentUser.name === memberName) {
+            syncUI();
+        }
+        
+        alert(`✅ Subscription ${type} untuk ${memberName} berhasil ditambahkan!`);
+    }
+
+    // ========== AUTH FUNCTIONS (ASLI) ==========
+    function performAuth() {
+        const userInput = document.getElementById('user-login');
+        const devInput = document.getElementById('dev-key');
+        
+        const username = userInput ? userInput.value.trim() : '';
+        const devKey = devInput ? devInput.value.trim() : '';
+        
+        if (username) {
+            login({ name: username, role: 'member' });
+        } else if (devKey === "Gakjelas") {
+            login({ name: 'ARCHITECT', role: 'developer' });
+        } else if (devKey) {
+            alert("❌ Kunci developer salah!");
+        } else {
+            alert("⚠️ Masukkan username terlebih dahulu!");
+        }
+    }
+
+    function verifyDevAccess() {
+        const input = document.getElementById('dev-pass-input');
+        if (input && input.value === "082326") {
+            closeModal('devAuthModal');
+            openModal('adminDashboardModal');
+            switchAdminTab('members');
+            renderMemberList();
+        } else {
+            alert("PIN salah");
+        }
+    }
+
+    function updateProfilePhoto(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                currentUser.pfp = e.target.result;
+                localStorage.setItem('uno_session', JSON.stringify(currentUser));
+                syncUI();
+                renderMemberList();
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function downloadQR() {
+        const qrSrc = config.payment?.qrCode;
+        if (!qrSrc) {
+            alert("⚠️ QR Code belum diset!");
+            return;
+        }
+        // Jika base64 langsung download
+        if (qrSrc.startsWith('data:')) {
+            const a = document.createElement('a');
+            a.href = qrSrc;
+            a.download = 'QR-Payment-UNO-STOREZZ.png';
+            a.click();
+            return;
+        }
+        // Jika URL, fetch dulu lalu download
+        fetch(qrSrc)
+            .then(res => res.blob())
+            .then(blob => {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'QR-Payment-UNO-STOREZZ.png';
+                a.click();
+                URL.revokeObjectURL(url);
+            })
+            .catch(() => {
+                // Fallback: buka di tab baru
+                window.open(qrSrc, '_blank');
+            });
+    }
+
+
+    // ===== ICON PICKER OPTIONS =====
+    const BENEFIT_ICONS = [
+        { v: 'fa-solid fa-check', l: '✅' },
+        { v: 'fa-solid fa-bolt', l: '⚡' },
+        { v: 'fa-solid fa-star', l: '⭐' },
+        { v: 'fa-solid fa-crown', l: '👑' },
+        { v: 'fa-solid fa-shield-halved', l: '🛡️' },
+        { v: 'fa-solid fa-fire', l: '🔥' },
+        { v: 'fa-solid fa-gem', l: '💎' },
+        { v: 'fa-solid fa-rocket', l: '🚀' },
+        { v: 'fa-solid fa-infinity', l: '♾️' },
+        { v: 'fa-solid fa-clock', l: '⏰' },
+        { v: 'fa-solid fa-headset', l: '🎧' },
+        { v: 'fa-solid fa-gift', l: '🎁' },
+        { v: 'fa-solid fa-lock', l: '🔒' },
+        { v: 'fa-solid fa-wifi', l: '📶' },
+        { v: 'fa-solid fa-thumbs-up', l: '👍' },
+    ];
+
+    function iconOptions(selected) {
+        return BENEFIT_ICONS.map(ic =>
+            `<option value="${ic.v}" ${ic.v === selected ? 'selected' : ''}>${ic.l}</option>`
+        ).join('');
+    }
+
+    function addBenefitRow(icon = 'fa-solid fa-check', text = '') {
+        const container = document.getElementById('benefit-rows-container');
+        if (!container) return;
+        const row = document.createElement('div');
+        row.className = 'benefit-row';
+        row.innerHTML = `
+            <select style="width:44px;padding:6px 2px;font-size:13px;text-align:center;">${iconOptions(icon)}</select>
+            <input type="text" placeholder="Contoh: Akses 24 jam" value="${text}" style="margin-bottom:0;">
+            <div class="del-benefit-btn" onclick="this.parentElement.remove()">
+                <i class="fa-solid fa-xmark"></i>
+            </div>
+        `;
+        container.appendChild(row);
+    }
+
+    // Edit benefit produk yang sudah ada
+    let _editBenefitCat = null, _editBenefitIdx = null;
+    function openEditBenefit(cat, idx) {
+        _editBenefitCat = cat;
+        _editBenefitIdx = idx;
+        const item = config.prices[cat][idx];
+        const container = document.getElementById('edit-benefit-rows');
+        if (!container) return;
+        document.getElementById('edit-benefit-name').innerText = item.n;
+        container.innerHTML = '';
+        (item.b || []).forEach(b => {
+            addEditBenefitRow(b.icon, b.text);
+        });
+        document.getElementById('editBenefitModal').style.display = 'flex';
+    }
+
+    function addEditBenefitRow(icon = 'fa-solid fa-check', text = '') {
+        const container = document.getElementById('edit-benefit-rows');
+        if (!container) return;
+        const row = document.createElement('div');
+        row.className = 'benefit-row';
+        row.innerHTML = `
+            <select style="width:44px;padding:6px 2px;font-size:13px;text-align:center;">${iconOptions(icon)}</select>
+            <input type="text" placeholder="Teks benefit" value="${text}" style="margin-bottom:0;">
+            <div class="del-benefit-btn" onclick="this.parentElement.remove()">
+                <i class="fa-solid fa-xmark"></i>
+            </div>
+        `;
+        container.appendChild(row);
+    }
+
+    function saveEditBenefit() {
+        if (_editBenefitCat === null || _editBenefitIdx === null) return;
+        const benefits = [];
+        document.querySelectorAll('#edit-benefit-rows .benefit-row').forEach(row => {
+            const icon = row.querySelector('select')?.value || 'fa-solid fa-check';
+            const text = row.querySelector('input')?.value.trim() || '';
+            if (text) benefits.push({ icon, text });
+        });
+        config.prices[_editBenefitCat][_editBenefitIdx].b = benefits;
+        saveLocal();
+        publishProductsToCloud();
+        renderAdminProductList();
+        const cat = document.querySelector('.cat-btn.active span')?.innerText.toLowerCase() || 'sewa';
+        loadCategory(cat);
+        document.getElementById('editBenefitModal').style.display = 'none';
+        alert('✅ Benefit berhasil disimpan!');
+    }
+
+    function saveLocal() {
+        localStorage.setItem('uno_cfg', JSON.stringify(config));
+    }
+
+    function openModal(id) {
+        const modal = document.getElementById(id);
+        if (modal) modal.style.display = 'flex';
+    }
+
+    function closeModal(id) {
+        const modal = document.getElementById(id);
+        if (modal) modal.style.display = 'none';
+    }
+
+    function showPage(page) {
+        const home = document.getElementById('page-home');
+        const profile = document.getElementById('page-profile');
+        const btnHome = document.getElementById('btn-home');
+        const btnProfile = document.getElementById('btn-profile');
+        
+        if (home) home.style.display = page === 'home' ? 'block' : 'none';
+        if (profile) profile.style.display = page === 'profile' ? 'block' : 'none';
+        if (btnHome) btnHome.classList.toggle('active', page === 'home');
+        if (btnProfile) btnProfile.classList.toggle('active', page === 'profile');
+        
+        if (page === 'profile') syncUI();
+        
+        // Refresh config saat pindah halaman
+        loadConfigFromCloud();
+    }
+
+    function logout() {
+        if (confirm("⚠️ Yakin ingin keluar?")) {
+            currentUser = null;
+            localStorage.removeItem('uno_session');
+            
+            const mainHeader = document.getElementById('main-header');
+            const mainApp = document.getElementById('main-app');
+            const mainNav = document.getElementById('main-nav');
+            if (mainHeader) mainHeader.style.display = 'none';
+            if (mainApp) mainApp.style.display = 'none';
+            if (mainNav) mainNav.style.display = 'none';
+            
+            // Tutup semua modal dulu
+            document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
+            
+            const loginScreen = document.getElementById('login-screen');
+            if (loginScreen) loginScreen.style.display = 'flex';
+            
+            const userInput = document.getElementById('user-login');
+            const devInput = document.getElementById('dev-key');
+            if (userInput) userInput.value = '';
+            if (devInput) devInput.value = '';
+        }
+    }
+
+    // ==================== FIREBASE REALTIME DATABASE ====================
+    const FB = 'https://uno-storezz-default-rtdb.firebaseio.com';
+
+    // ===== HELPER: PUT/GET/DELETE ke Firebase =====
+    async function fbSet(path, data) {
+        const res = await fetch(`${FB}/${path}.json`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        if (!res.ok) throw new Error('fbSet failed: ' + res.status);
+        return res.json();
+    }
+
+    async function fbGet(path) {
+        const res = await fetch(`${FB}/${path}.json?t=` + Date.now());
+        if (!res.ok) throw new Error('fbGet failed: ' + res.status);
+        return res.json();
+    }
+
+    async function fbPatch(path, data) {
+        const res = await fetch(`${FB}/${path}.json`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        if (!res.ok) throw new Error('fbPatch failed: ' + res.status);
+        return res.json();
+    }
+
+    async function fbDelete(path) {
+        await fetch(`${FB}/${path}.json`, { method: 'DELETE' }).catch(() => {});
+    }
+
+    // ===== MEMBER FUNCTIONS =====
+    async function syncMembersToCloud() {
+        try {
+            const membersObj = {};
+            config.members.forEach(m => {
+                const key = m.name.replace(/[.#$\[\]]/g, '_');
+                membersObj[key] = {
+                    name: m.name,
+                    role: m.role || 'member',
+                    subs: m.subs || [],
+                    joinDate: m.joinDate || new Date().toLocaleDateString('id-ID'),
+                    lastActive: new Date().toLocaleString('id-ID'),
+                    totalSpent: m.totalSpent || 0,
+                    julukan: m.julukan || ''
+                };
+            });
+            await fbSet('members', membersObj);
+            console.log('✅ Semua member tersync ke Firebase');
+        } catch (e) {
+            console.log('❌ Gagal sync members:', e);
+        }
+    }
+
+    async function syncUserToCloud(userData) {
+        try {
+            const member = config.members.find(m => m.name === userData.name) || {
+                name: userData.name,
+                role: userData.role || 'member',
+                subs: [],
+                joinDate: new Date().toLocaleDateString('id-ID'),
+                totalSpent: 0,
+                julukan: userData.role === 'developer' ? 'The Architect' : ''
+            };
+            const key = member.name.replace(/[.#$\[\]]/g, '_');
+            await fbPatch('members/' + key, {
+                name: member.name,
+                role: member.role || 'member',
+                subs: member.subs || [],
+                joinDate: member.joinDate || new Date().toLocaleDateString('id-ID'),
+                lastActive: new Date().toLocaleString('id-ID'),
+                totalSpent: member.totalSpent || 0,
+                julukan: member.julukan || ''
+            });
+            console.log('✅ User', member.name, 'disimpan ke Firebase');
+        } catch (e) {
+            console.log('❌ Gagal sync user:', e);
+        }
+    }
+
+    async function fetchAllMembersFromCloud() {
+        try {
+            const data = await fbGet('members');
+            if (data && typeof data === 'object') {
+                const cloudMembers = Object.values(data).filter(m => m && m.name);
+                if (cloudMembers.length > 0) {
+                    // Merge: cloud lebih prioritas, tambahkan lokal yang belum ada di cloud
+                    const merged = [...cloudMembers];
+                    config.members.forEach(local => {
+                        if (!cloudMembers.some(c => c.name === local.name)) {
+                            merged.push(local);
+                        }
+                    });
+                    config.members = merged;
+                    saveLocal();
+                    console.log('✅', cloudMembers.length, 'member diambil dari Firebase');
+                    return true;
+                }
+            }
+        } catch (e) {
+            console.log('❌ Gagal ambil members dari Firebase:', e);
+        }
+        return false;
+    }
+
+    // ===== KONTEN: PUBLISH KE FIREBASE (otomatis dipanggil saat admin simpan) =====
+    async function publishProductsToCloud() {
+        try {
+            const pricesObj = {};
+            ['sewa','premium','script','lainnya'].forEach(cat => {
+                pricesObj[cat] = config.prices[cat] || [];
+            });
+            await fbSet('konten/prices', pricesObj);
+            console.log('✅ Produk di-publish ke Firebase');
+        } catch (e) {
+            console.log('❌ Gagal publish produk:', e);
+        }
+    }
+
+    async function publishBannersToCloud() {
+        try {
+            await fbSet('konten/banners', config.banners || []);
+            console.log('✅ Banner di-publish ke Firebase');
+        } catch (e) {
+            console.log('❌ Gagal publish banner:', e);
+        }
+    }
+
+    async function publishGachaToCloud() {
+        try {
+            await fbSet('konten/gacha', config.gachaPrizes || []);
+            console.log('✅ Gacha di-publish ke Firebase');
+        } catch (e) {
+            console.log('❌ Gagal publish gacha:', e);
+        }
+    }
+
+    async function publishConfigToCloud() {
+        try {
+            const cfg = {
+                store_name: document.querySelector('.logo')?.innerText || 'UNO-STOREZZ',
+                bg_video: config.bgVideo || '',
+                bg_music: config.bgMusic || '',
+                accent_color: config.accent || '#00eaff',
+                wa_number: window.WA_NUMBER || '6283856169422',
+                account_number: config.payment?.accountNumber || '',
+                account_name: config.payment?.accountName || '',
+                qr_code: config.payment?.qrCode || '',
+                methods_dana: config.payment?.methods?.dana || false,
+                methods_gopay: config.payment?.methods?.gopay || false,
+                methods_ovo: config.payment?.methods?.ovo || false
+            };
+            await fbSet('konten/config', cfg);
+            console.log('✅ Config di-publish ke Firebase');
+        } catch (e) {
+            console.log('❌ Gagal publish config:', e);
+        }
+    }
+
+    async function publishAllToCloud() {
+        const btn = event?.target;
+        if (btn) { btn.disabled = true; btn.innerText = '⏳ PUBLISHING...'; }
+        try {
+            await Promise.all([
+                publishProductsToCloud(),
+                publishBannersToCloud(),
+                publishGachaToCloud(),
+                publishConfigToCloud()
+            ]);
+            alert('✅ Semua konten berhasil di-publish! Langsung tampil ke publik.');
+        } catch(e) {
+            alert('❌ Gagal publish: ' + e.message);
+        }
+        if (btn) { btn.disabled = false; btn.innerText = '🚀 PUBLISH SEMUA'; }
+    }
+
+    // ===== LOAD KONTEN DARI FIREBASE (dijalankan saat load & real-time refresh) =====
+    async function loadProductsFromCloud() {
+        try {
+            const prices = await fbGet('konten/prices');
+            if (prices && typeof prices === 'object') {
+                const hasData = Object.values(prices).some(arr => Array.isArray(arr) && arr.length > 0);
+                if (hasData) {
+                    config.prices = prices;
+                    saveLocal();
+                    console.log('✅ Produk dimuat dari Firebase');
+                }
+            }
+        } catch (e) {
+            console.log('⚠️ Firebase produk offline, pakai lokal');
+        }
+        loadCategory('sewa');
+    }
+
+    async function loadGachaFromCloud() {
+        try {
+            const gacha = await fbGet('konten/gacha');
+            if (gacha && Array.isArray(gacha) && gacha.length > 0) {
+                config.gachaPrizes = gacha;
+                saveLocal();
+                console.log('✅ Gacha dimuat dari Firebase');
+            }
+        } catch (e) {
+            console.log('⚠️ Firebase gacha offline, pakai lokal');
+        }
+        renderGachaPrizeList();
+    }
+
+    async function loadBannersFromCloud() {
+        try {
+            const banners = await fbGet('konten/banners');
+            if (banners && Array.isArray(banners) && banners.length > 0) {
+                config.banners = banners;
+                saveLocal();
+                console.log('✅ Banner dimuat dari Firebase');
+            }
+        } catch (e) {
+            console.log('⚠️ Firebase banner offline, pakai lokal');
+        }
+        renderSlider();
+    }
+
+    async function loadConfigFromCloud() {
+        try {
+            const cfg = await fbGet('konten/config');
+            if (cfg && typeof cfg === 'object') {
+                if (cfg.store_name) {
+                    const logo = document.querySelector('.logo');
+                    if (logo) logo.innerText = cfg.store_name;
+                }
+                if (cfg.bg_video && cfg.bg_video !== config.bgVideo) {
+                    config.bgVideo = cfg.bg_video;
+                    updateVideoBackground();
+                }
+                if (cfg.bg_music && cfg.bg_music !== config.bgMusic) {
+                    config.bgMusic = cfg.bg_music;
+                    updateMusicBackground();
+                }
+                if (cfg.accent_color) updateAccent(cfg.accent_color);
+                if (cfg.wa_number) window.WA_NUMBER = cfg.wa_number;
+                if (cfg.account_number) config.payment.accountNumber = cfg.account_number;
+                if (cfg.account_name) config.payment.accountName = cfg.account_name;
+                if (cfg.qr_code) config.payment.qrCode = cfg.qr_code;
+                config.payment.methods = {
+                    dana: cfg.methods_dana === true || cfg.methods_dana === 'true',
+                    gopay: cfg.methods_gopay === true || cfg.methods_gopay === 'true',
+                    ovo: cfg.methods_ovo === true || cfg.methods_ovo === 'true'
+                };
+                saveLocal();
+                loadPaymentSettings();
+                console.log('✅ Config dimuat dari Firebase');
+            }
+        } catch (e) {
+            console.log('⚠️ Firebase config offline, pakai lokal');
+            loadPaymentSettings();
+        }
+    }
+
+    function updateVideoBackground() {
+        const video = document.getElementById('bg-vid');
+        const videoSrc = document.getElementById('video-src');
+        if (config.bgVideo && videoSrc) {
+            videoSrc.src = config.bgVideo;
+            if (video) { video.load(); video.play().catch(() => {}); }
+        }
+    }
+
+    function updateMusicBackground() {
+        const audio = document.getElementById('anime-music');
+        const musicSrc = document.getElementById('music-src');
+        if (config.bgMusic && musicSrc) {
+            musicSrc.src = config.bgMusic;
+            if (audio) { audio.load(); audio.play().catch(() => {}); }
+        }
+    }
+
+    // Auto sync member setiap 5 menit
+    setInterval(() => {
+        if (config.members && config.members.length > 0) syncMembersToCloud();
+    }, 300000);
+
+    // Real-time refresh konten dari Firebase setiap 10 detik
+    setInterval(async () => {
+        await Promise.all([
+            loadProductsFromCloud(),
+            loadGachaFromCloud(),
+            loadBannersFromCloud(),
+            loadConfigFromCloud()
+        ]);
+        console.log('🔄 Real-time refresh dari Firebase');
+    }, 10000);
+
+    // ==================== INIT ====================
+    document.addEventListener('DOMContentLoaded', function() {
+        const colorPicker = document.getElementById('customColorPicker');
+        if (colorPicker) {
+            colorPicker.addEventListener('input', function(e) { updateAccent(e.target.value); });
+        }
+
+        // Load semua data dari Firebase
+        loadProductsFromCloud();
+        loadGachaFromCloud();
+        loadBannersFromCloud();
+        loadConfigFromCloud();
+
+        loadPaymentSettings();
+        updateMemberSelect();
+
+        const session = localStorage.getItem('uno_session');
+        if (session) {
+            try {
+                const user = JSON.parse(session);
+                if (user && user.name) {
+                    setTimeout(() => { login(user); }, 1500);
+                }
+            } catch (e) { console.log('Session error:', e); }
+        }
+
+        setInterval(() => {
+            if (document.getElementById('adminDashboardModal')?.style.display === 'flex') {
+                renderSubscriptionList();
+                updateSubscriptionStats();
+            }
+        }, 60000);
+
+        setInterval(() => {
+            if (currentUser) renderMySubscription();
+        }, 300000);
+    });
+
+        // ========== TAMBAHKAN TOMBOL SYNC DI ADMIN PANEL ==========
+    const originalOpenModal = openModal;
+    openModal = function(id) {
+        if (id === 'adminDashboardModal') {
+            setTimeout(() => {
+                const closeBtn = document.querySelector('#adminDashboardModal .buy-btn:last-child');
+                if (closeBtn && !document.getElementById('sync-btn-container')) {
+                    const syncContainer = document.createElement('div');
+                    syncContainer.id = 'sync-btn-container';
+                    syncContainer.style.display = 'flex';
+                    syncContainer.style.gap = '8px';
+                    syncContainer.style.marginTop = '8px';
+                    syncContainer.innerHTML = `
+                        <button class="buy-btn" onclick="syncMembersToCloud()" style="background:var(--gold); color:#000; flex:1;">
+                            <i class="fa-solid fa-cloud-upload-alt"></i> SYNC MEMBER
+                        </button>
+                        <button class="buy-btn" onclick="fetchAllMembersFromCloud()" style="background:var(--accent); color:#000; flex:1;">
+                            <i class="fa-solid fa-cloud-download-alt"></i> AMBIL MEMBER
+                        </button>
+                        <button class="buy-btn" onclick="loadConfigFromCloud()" style="background:var(--dev-color); color:#fff; flex:1;">
+                            <i class="fa-solid fa-sync-alt"></i> REFRESH CONFIG
+                        </button>
+                    `;
+                    const publishContainer = document.createElement('div');
+                    publishContainer.style.marginTop = '8px';
+                    publishContainer.innerHTML = `
+                        <button class="buy-btn" onclick="publishAllToCloud()" style="background:linear-gradient(90deg,#00eaff,#ff0055); color:#fff; width:100%; font-size:11px;">
+                            <i class="fa-solid fa-rocket"></i> 🚀 PUBLISH SEMUA KE PUBLIK
+                        </button>
+                    `;
+                    closeBtn.parentNode.insertBefore(syncContainer, closeBtn);
+                    closeBtn.parentNode.insertBefore(publishContainer, closeBtn);
+                }
+            }, 100);
+        }
+        originalOpenModal(id);
+    };
+</script>
+
+<!-- EDIT BENEFIT MODAL -->
+<div id="editBenefitModal" class="modal" style="display:none;">
+    <div class="modal-content" style="max-width:380px;">
+        <h2 style="font-family:'Orbitron'; color:var(--accent); font-size:12px; margin-bottom:4px;">
+            <i class="fa-solid fa-star"></i> EDIT BENEFIT
+        </h2>
+        <p id="edit-benefit-name" style="font-size:11px; color:var(--gold); font-weight:900; margin-bottom:12px;"></p>
+
+        <div id="edit-benefit-rows"></div>
+
+        <button class="add-benefit-row-btn" onclick="addEditBenefitRow()">
+            <i class="fa-solid fa-plus"></i> TAMBAH BENEFIT
+        </button>
+
+        <div style="display:flex; gap:8px; margin-top:12px;">
+            <button class="buy-btn" onclick="saveEditBenefit()" style="flex:1; background:var(--accent); color:#000;">
+                <i class="fa-solid fa-floppy-disk"></i> SIMPAN
+            </button>
+            <button class="buy-btn" onclick="document.getElementById('editBenefitModal').style.display='none'" style="flex:1; background:rgba(255,255,255,0.05); color:#fff;">
+                BATAL
+            </button>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
